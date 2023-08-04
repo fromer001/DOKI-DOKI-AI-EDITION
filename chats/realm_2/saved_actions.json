@@ -1,0 +1,8 @@
+{
+  "Scene": "club.png",
+  "Proceed": "True",
+  "head_sprite": "monika serious.webp",
+  "leftside_sprite": "2l.png",
+  "rightside_sprite": "2r.png",
+  "zone": "None"
+}

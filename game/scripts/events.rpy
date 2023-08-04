@@ -1,5 +1,6 @@
 init python:
     #TODO: Add Async functions to reduce pauses
+    #TODO: Make code less esoteric and more readable
 
     import json
     from dotenv import load_dotenv
@@ -228,27 +229,43 @@ init python:
             emotions = ["angry", "blushing", "flabbergasted", "horrified",
                     "playful frown", "playful smile", "scared", "shocked", "serious",
                     "crying"]
+
+            vocal_emotions = {
+                "Happy": ["blushing", "playful smile", "flirty", "glad", "happy", "really happy"],
+                "Sad": ["crying", "sad"],
+                "Angry": ["angry"],
+                "Surprise": ["shocked", "scared", "horrified", "flabbergasted"]
+            }
+
+            emo = "Neutral"
+
             for h in self.head_sprite_dict:
                 if "[MOOD] "+h in mood:
                     self.update_in_saved_actions("head_sprite", self.head_sprite_dict[h])
                     self.head_sprite = self.head_sprite_dict[h]
 
-                    if h in emotions:
+                    # Adding tone to monika's voice
+                    for vocal_list in vocal_emotions.items():
+                        if h in vocal_list:
+                            emo = vocal_list[0]
+                            break
 
+                    if h in emotions:
                         self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict["none"])
                         self.leftside_sprite = self.leftside_sprite_dict["none"]
 
                         self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict["none"])
                         self.rightside_sprite = self.rightside_sprite_dict["none"]
 
-                        return
+                        return emo
+
                 elif self.head_sprite in emotions:
+
                     self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict["none"])
                     self.leftside_sprite = self.leftside_sprite_dict["none"]
 
                     self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict["none"])
-                    self.rightside_sprite = self.rightside_sprite_dict["none"]
-                    
+                    self.rightside_sprite = self.rightside_sprite_dict["none"]                    
 
 
             for l in self.leftside_sprite_dict:
@@ -260,6 +277,8 @@ init python:
                 if "[BODY] "+rr in mood:
                     self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict[rr])
                     self.rightside_sprite = self.rightside_sprite_dict[rr]
+
+            return emo
 
 
         def control_scene(self, scene):
@@ -320,12 +339,12 @@ init python:
             return reply
 
 
-        def monika_speaks(self, reply):
+        def monika_speaks(self, reply, emote):
             """Convert Monika's text into vocals"""
             url = "https://app.coqui.ai/api/v2/samples/from-prompt/"
             payload = {
                 "prompt": "An 18 year old girl with a sweet voice",
-                "emotion": "Neutral",
+                "emotion": emote,
                 "speed": 1,
                 "text": reply
             }
@@ -367,11 +386,11 @@ init python:
             # Log AI input
             self.append_to_chat_history('assistant', ai_reply)
 
-            self.control_mood(ai_reply)
+            emote = self.control_mood(ai_reply)
             self.control_scene(ai_reply)
             final_res = self.remove_context_words(ai_reply)
             if self.NARRATION != True:
-                self.monika_speaks(final_res)
+                self.monika_speaks(final_res, emote=emote)
             return final_res
 
 
