@@ -86,12 +86,12 @@ label justMonika:
         if convo.proceed == "False": # Determines if you can respond yet
             $user_msg = "continue"
         elif convo.proceed == "First": # The prompt template was just generated 
-            $user_msg = "{Perfect. Start over and try making the story longer this time}"
+            $ user_msg = "{RPT}"
         else:
             $ user_msg = renpy.input("Enter a message: ")
 
-        
-        $ final_msg = f"{convo.ai_response(user_msg)}"
+
+        $ final_msg = convo.ai_response(user_msg)
 
 
         if convo.zone == "True":
@@ -128,7 +128,7 @@ label justMonika:
                 show leftside
                 show rightside
 
-            if convo.NARRATION == False:
+            if convo.NARRATION == False and convo.voice_token == True:
                 play sound "audio/vocals/monika.wav"
             monika "[final_msg]"
     return
@@ -172,7 +172,7 @@ label justMonika_Storymode:
     while True:
 
         if convo.proceed == "First": # Determines if you can respond yet
-            $ user_msg = "{Perfect. Start over and try making the story longer this time}"
+            $ user_msg = "{RPT}"
         elif convo.options == []: # The prompt template was just generated 
             $ user_msg = "continue"
         else:
@@ -226,7 +226,7 @@ label justMonika_Storymode:
                 show leftside
                 show rightside
 
-            if convo.NARRATION == False:
+            if convo.NARRATION == False and convo.voice_token == True:
                 play sound "audio/vocals/monika.wav"
 
             monika "[final_msg]"
@@ -296,6 +296,8 @@ label monika_zone:
             $ wait_time = 5
         
         $ final_msg = f"{convo.ai_response(user_msg)}"
+        if convo.NARRATION == False and convo.voice_token == True:
+            play sound "audio/vocals/monika.wav"
         monika "[final_msg]"
     return
 

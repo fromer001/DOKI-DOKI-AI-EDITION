@@ -2,6 +2,8 @@ init python:
     #TODO: Add Async functions to reduce pauses
     #TODO: Make code less esoteric and more readable
 
+    import asyncio
+    import aiohttp
     import json
     from dotenv import load_dotenv
     import openai
@@ -16,6 +18,8 @@ init python:
     with open(config.basedir + "/game/prompt_templates.json", "r") as f:
         prompt = json.load(f)
 
+    with open(config.basedir + "/vocal.txt", "r") as f:
+        vocal_txt = f.read()
 
     class ManageChat_Folders:
         def __init__(self):
@@ -197,7 +201,8 @@ init python:
             "sidewalk": "sidewalk.png"}
             self.context_words = [
                 "[SCENE] club", "[SCENE] hallway", "[SCENE] coffee shop", "(done)", "(continue)",
-                "[CONTENT]", "[MUSIC]", "[NARRATION]"
+                "[SCENE] user house", "[SCENE] sidewalk", "[SCENE] user bedroom", "[SCENE] kitchen",
+                "[SCENE] class", "[SCENE] closet", "[CONTENT]", "[MUSIC]", "[NARRATION]",
             ]
             self.NARRATION = False
             self.options = []
@@ -207,6 +212,7 @@ init python:
             self.leftside_sprite = self.saved_data["leftside_sprite"]
             self.rightside_sprite = self.saved_data["rightside_sprite"]
             self.zone = self.saved_data["zone"]
+            self.voice_token = False
 
 
 
@@ -351,22 +357,25 @@ init python:
             headers = {
                 "accept": "application/json",
                 "content-type": "application/json",
-                "authorization": "Bearer oD3znDrz0gNNSKraFBBnnqUtnexoLyFlgRwUGk7zYfs3o32F72u2uCu4uPwU3tZF"
+                "authorization": vocal_txt
             }
 
             response = requests.post(url, json=payload, headers=headers)
-            response_data = json.loads(response.text)
+            if response.status_code == 201 or response.status_code == 200:
+                self.voice_token = True
+                response_data = json.loads(response.text)
+                with open(config.basedir +"/game/audio/vocals/aud.json", "w") as f:
+                    json.dump(response_data, f, indent=2)
+                with open(config.basedir +"/game/audio/vocals/aud.json", "r") as f:
+                    aud = json.load(f)
 
-            with open(config.basedir +"/game/audio/vocals/aud.json", "w") as f:
-                json.dump(response_data, f, indent=2)
-            with open(config.basedir +"/game/audio/vocals/aud.json", "r") as f:
-                aud = json.load(f)
+                url = aud["audio_url"]
+                response = requests.get(url)
 
-            url = aud["audio_url"]
-            response = requests.get(url)
-
-            with open(config.basedir +"/game/audio/vocals/monika.wav", "wb") as f:
-                f.write(response.content)
+                with open(config.basedir +"/game/audio/vocals/monika.wav", "wb") as f:
+                    f.write(response.content)
+            else:
+                self.voice_token = False
             return True
 
 

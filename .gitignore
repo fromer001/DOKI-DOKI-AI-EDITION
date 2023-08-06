@@ -1,3 +1,6 @@
 **/errors.txt
 **/log.txt
 **/traceback.txt
+**/.env
+**/ztst.py
+**/project.json
