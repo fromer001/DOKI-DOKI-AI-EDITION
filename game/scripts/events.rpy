@@ -356,10 +356,10 @@ init python:
                 # Wait for "output" to be returned by the API.
                 # Would do this asynchronously but i've failed to do so.
                 try: url = ai_art["output"][0]
-                except IndexError:
+                except (IndexError, KeyError):
                     time.sleep(55)
                     try: url = ai_art["output"][0]
-                    except IndexError: return guide
+                    except (IndexError, KeyError): return guide
                 response = requests.get(url)
 
                 with open(config.basedir + f"/game/images/bg/{guide}", "wb") as f:
