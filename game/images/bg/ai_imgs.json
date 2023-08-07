@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "generationTime": 4.955005168914795,
+  "id": 33831447,
+  "output": [
+    "https://cdn2.stablediffusionapi.com/generations/bc0acac1-83db-48a6-b88e-26288222bdcb-0.png"
+  ],
+  "meta": {
+    "H": 1024,
+    "W": 1024,
+    "enable_attention_slicing": "true",
+    "file_prefix": "bc0acac1-83db-48a6-b88e-26288222bdcb",
+    "guidance_scale": 9,
+    "model": "runwayml/stable-diffusion-v1-5",
+    "n_samples": 1,
+    "negative_prompt": "Disfigured, cartoon, blurry, nude, 1girl, 1boy, character",
+    "outdir": "out",
+    "prompt": "mdjrny-v4 style background anime scenery in bookstore hyperrealistic, highly detailed, cinematic lighting, stunningly beautiful, intricate, sharp focus, (professionally color graded), ((bright soft diffused light)), volumetric fog, trending on instagram, trending on tumblr, HDR 4K, 8K",
+    "revision": "fp16",
+    "safetychecker": "yes",
+    "seed": 1280066003,
+    "steps": 30,
+    "vae": "stabilityai/sd-vae-ft-mse"
+  }
+}

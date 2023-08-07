@@ -73,12 +73,17 @@ label justMonika:
     $ check.usernameCheck() # Adds your username to prompt
     $ convo = Convo(chat_history=memory, full_path=path+"/")
 
-    image _bg:
-        "bg/[convo.scene]"
+    if convo.ai_art_mode == False:
+        image _bg:
+            "bg/[convo.scene]"
+        scene _bg
+    else:
+        image ai_bg:
+            zoom 1.5
+            "bg/[convo.scene]"
+        scene ai_bg
 
-    scene _bg
-
-    # placeholder text (Will rely on json data later for when users loads file)
+    # placeholder text (Will rely on json data later for when users load a file)
     "..."
 
     while True:
@@ -90,9 +95,7 @@ label justMonika:
         else:
             $ user_msg = renpy.input("Enter a message: ")
 
-
         $ final_msg = convo.ai_response(user_msg)
-
 
         if convo.zone == "True":
             jump now_everyone_can_be_happy
@@ -101,14 +104,19 @@ label justMonika:
 
         if convo.NARRATION:
             # Narrator is speaking
-            image _bg:
-                "bg/[convo.scene]"
+            if convo.ai_art_mode == False:
+                image _bg:
+                    "bg/[convo.scene]"
+                scene _bg
+            else:
+                image ai_bg:
+                    "bg/[convo.scene]"
+                    zoom 1.5
+                scene ai_bg
 
-            scene _bg
             "[final_msg]"
         else:
             # Monika is speaking
-
             image head:
                 "characters/monika/[convo.head_sprite]"
                 zoom 0.70
@@ -122,13 +130,12 @@ label justMonika:
                 zoom 0.70
                 uppies
 
-
             if convo.scene != "coffee.jpg":
                 show head
                 show leftside
                 show rightside
 
-            if convo.NARRATION == False and convo.voice_token == True:
+            if convo.NARRATION == False and convo.voice_mode == True:
                 play sound "audio/vocals/monika.wav"
             monika "[final_msg]"
     return
@@ -160,13 +167,17 @@ label justMonika_Storymode:
     $ check.usernameCheck() # Adds your username to prompt
     $ convo = Convo(chat_history=memory, full_path=path+"/")
 
-    image _bg:
-        "bg/[convo.scene]"
+    if convo.ai_art_mode == False:
+        image _bg:
+            "bg/[convo.scene]"
+        scene _bg
+    else:
+        image ai_bg:
+            zoom 1.5
+            "bg/[convo.scene]"
+        scene ai_bg
 
-
-    scene _bg
-
-    # placeholder text (Will rely on json data later for when users loads file)
+    # placeholder text (Will rely on json data later for when users load a file)
     "..."
 
     while True:
@@ -199,14 +210,19 @@ label justMonika_Storymode:
 
         if convo.NARRATION:
             # Narrator is speaking
-            image _bg:
-                "bg/[convo.scene]"
+            if convo.ai_art_mode == False:
+                image _bg:
+                    "bg/[convo.scene]"
+                scene _bg
+            else:
+                image ai_bg:
+                    zoom 1.5
+                    "bg/[convo.scene]"
+                scene ai_bg
 
-            scene _bg
             "[final_msg]"
         else:
             # Monika is speaking
-
             image head:
                 "characters/monika/[convo.head_sprite]"
                 zoom 0.70
@@ -226,7 +242,7 @@ label justMonika_Storymode:
                 show leftside
                 show rightside
 
-            if convo.NARRATION == False and convo.voice_token == True:
+            if convo.NARRATION == False and convo.voice_mode == True:
                 play sound "audio/vocals/monika.wav"
 
             monika "[final_msg]"

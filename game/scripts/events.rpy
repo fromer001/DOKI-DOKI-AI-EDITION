@@ -11,6 +11,7 @@ init python:
     import random
     import requests
     import math
+    import time
 
     load_dotenv(".env")
     openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -18,8 +19,24 @@ init python:
     with open(config.basedir + "/game/prompt_templates.json", "r") as f:
         prompt = json.load(f)
 
-    with open(config.basedir + "/vocal.txt", "r") as f:
-        vocal_txt = f.read()
+    with open(config.basedir + "/IMPORTANT_CONFIG.txt", "r") as f:
+        cs_config = f.read()
+
+    def read_config(file_path):
+        config_dict = {}
+        with open(file_path, 'r') as file:
+            for line in file:
+                if "#" not in line:            
+                    key, value = line.strip().split('=')
+                    config_dict[key] = value
+        return config_dict
+
+    config_file_path = config.basedir + '/IMPORTANT_CONFIG.txt'
+    cs_config = read_config(config_file_path)
+
+    stable_token = cs_config['STABLE_TOKEN']
+    vocal_token = cs_config['VOCAL_TOKEN']
+
 
     class ManageChat_Folders:
         def __init__(self):
@@ -29,6 +46,7 @@ init python:
             self.saved_actions = "saved_actions.json"
             self.saved_data = {
                                 "Scene": "club.png",
+                                "scene_cache": [],
                                 "Proceed": "First",
                                 "head_sprite": "smile.png",
                                 "leftside_sprite": "1l.png",
@@ -200,10 +218,8 @@ init python:
             "mc house": "house.png", "user house": "house.png", "user's house": "house.png", "house": "house.png",
             "sidewalk": "sidewalk.png"}
             self.context_words = [
-                "[SCENE] club", "[SCENE] hallway", "[SCENE] coffee shop", "(done)", "(continue)",
-                "[SCENE] user house", "[SCENE] sidewalk", "[SCENE] user bedroom", "[SCENE] kitchen",
-                "[SCENE] class", "[SCENE] closet", "[CONTENT]", "[MUSIC]", "[NARRATION]",
-            ]
+                "(done)", "(continue)", "[CONTENT]", "[MUSIC]", "[NARRATION]"
+                ]
             self.NARRATION = False
             self.options = []
             self.proceed = self.saved_data["Proceed"]
@@ -212,7 +228,8 @@ init python:
             self.leftside_sprite = self.saved_data["leftside_sprite"]
             self.rightside_sprite = self.saved_data["rightside_sprite"]
             self.zone = self.saved_data["zone"]
-            self.voice_token = False
+            self.voice_mode = False
+            self.ai_art_mode = False
 
 
 
@@ -287,6 +304,76 @@ init python:
             return emo
 
 
+        def generate_ai_background(self, guide):
+            """Generates optional AI background if the static ones aren't being used"""
+            ai_art_path = config.basedir + "/game/images/bg/"+ guide + ".png"
+            if os.path.exists(ai_art_path):
+                guide = guide + ".png"
+                self.update_in_saved_actions("Scene", guide)
+                self.scene = guide
+                self.ai_art_mode = True
+                return self.scene
+            self.saved_data["scene_cache"].append(guide+".png")
+
+            url = "https://stablediffusionapi.com/api/v3/text2img"
+
+            payload = json.dumps({
+            "key": stable_token,
+            "prompt": "mdjrny-v4 style background anime scenery in " + guide + " hyperrealistic, highly detailed, cinematic lighting, stunningly beautiful, intricate, sharp focus, (professionally color graded), ((bright soft diffused light)), volumetric fog, trending on instagram, trending on tumblr, HDR 4K, 8K",
+            "negative_prompt": "Disfigured, cartoon, blurry, nude, 1girl, 1boy, character",
+            "width": "1024",
+            "height": "1024",
+            "samples": "1",
+            "num_inference_steps": "31",
+            "seed": None,
+            "guidance_scale": 9,
+            "safety_checker": "yes",
+            "multi_lingual": "no",
+            "panorama": "no",
+            "self_attention": "no",
+            "upscale": "no",
+            "model_id": "midjourney",
+            "scheduler": "DDPMScheduler",
+            "vae": "sd-ft-mse",
+            "lora": "more_details",
+            "webhook": None,
+            "track_id": None
+            })
+
+            headers = {
+            'Content-Type': 'application/json'
+            }
+
+            guide = guide + ".png"
+            response = requests.request("POST", url, headers=headers, data=payload, timeout=25)
+            if response.status_code == 201 or response.status_code == 200:
+                response_data = json.loads(response.text)
+                with open(config.basedir + f"/game/images/bg/ai_imgs.json", "w") as f:
+                    json.dump(response_data, f, indent=2)
+                with open(config.basedir + f"/game/images/bg/ai_imgs.json", "r") as f:
+                    ai_art = json.load(f)
+
+                # Wait for "output" to be returned by the API.
+                # Would do this asynchronously but i've failed to do so.
+                try: url = ai_art["output"][0]
+                except IndexError:
+                    time.sleep(55)
+                    try: url = ai_art["output"][0]
+                    except IndexError: return guide
+                response = requests.get(url)
+
+                with open(config.basedir + f"/game/images/bg/{guide}", "wb") as f:
+                    f.write(response.content)
+
+                self.update_in_saved_actions("Scene", guide)
+                self.scene = guide
+                self.ai_art_mode = True
+            else:
+                self.ai_art_mode = False
+
+            return guide
+
+
         def control_scene(self, scene):
             """Display different scenes"""
             for s in self.bg_scenes:
@@ -294,6 +381,14 @@ init python:
                     self.update_in_saved_actions("Scene", self.bg_scenes[s])
                     self.scene = self.bg_scenes[s]
                     return self.saved_data["Scene"]
+
+            if "[SCENE]" in scene:
+                scene = scene.split("[SCENE]")
+                scene = scene[1].split("[NARRATION]")
+                scene = scene[0].strip()
+                return self.generate_ai_background(scene)
+
+
 
         def control_proceed(self, mode):
             """Determines if the user can respond to the AI at this moment"""
@@ -335,8 +430,13 @@ init python:
             
             reply = reply.split("[BODY]")
             reply = reply[0].split("[MOOD]")[0]
+
             for ctx in self.context_words:
                 reply = reply.replace(ctx, "")
+
+            img = self.scene
+            img = img.replace(".png", "")
+            reply = reply.replace("[SCENE] "+img, "")
 
             for ops in self.options:
                 reply = ' '.join([word for word in reply.split(ops) if ops not in word])
@@ -357,12 +457,12 @@ init python:
             headers = {
                 "accept": "application/json",
                 "content-type": "application/json",
-                "authorization": vocal_txt
+                "authorization": vocal_token
             }
 
             response = requests.post(url, json=payload, headers=headers)
             if response.status_code == 201 or response.status_code == 200:
-                self.voice_token = True
+                self.voice_mode = True
                 response_data = json.loads(response.text)
                 with open(config.basedir +"/game/audio/vocals/aud.json", "w") as f:
                     json.dump(response_data, f, indent=2)
@@ -375,7 +475,7 @@ init python:
                 with open(config.basedir +"/game/audio/vocals/monika.wav", "wb") as f:
                     f.write(response.content)
             else:
-                self.voice_token = False
+                self.voice_mode = False
             return True
 
 

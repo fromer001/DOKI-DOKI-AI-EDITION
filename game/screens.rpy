@@ -1582,7 +1582,7 @@ screen gamemode_screen():
 
         hover_sound "audio/sfx/hover.wav"
         activate_sound "audio/sfx/select_sfx.wav"
-        action Hide("gamemode_screen")
+        action [SetScreenVariable("placeholder", 1)]
 
         hovered Show("display_everyone_desc")
         unhovered Hide("display_everyone_desc")
