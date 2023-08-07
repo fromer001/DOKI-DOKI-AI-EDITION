@@ -1,7 +1,3 @@
 # DO NOT SHOW YOUR TOKENS TO OTHER USERS #
 STABLE_TOKEN=ReplaceWithYourToken
-<<<<<<< HEAD
 VOCAL_TOKEN=ReplaceWithYourToken
-=======
-VOCAL_TOKEN=ReplaceWithYourToken
->>>>>>> d22fe8b8463334e45acf9c244f544ee5f8cdc363
