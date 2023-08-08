@@ -1,7 +1,4 @@
 init python:
-    #TODO: Add Async functions to reduce pauses
-    #TODO: Make code less esoteric and more readable
-
     import asyncio
     import aiohttp
     import json
@@ -288,7 +285,8 @@ init python:
                     self.leftside_sprite = self.leftside_sprite_dict["none"]
 
                     self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict["none"])
-                    self.rightside_sprite = self.rightside_sprite_dict["none"]                    
+                    self.rightside_sprite = self.rightside_sprite_dict["none"]
+                    return emo               
 
 
             for l in self.leftside_sprite_dict:

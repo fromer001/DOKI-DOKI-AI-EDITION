@@ -2,4 +2,5 @@
 **/log.txt
 **/traceback.txt
 **/.env
+**/game/cache/
 **/project.json
