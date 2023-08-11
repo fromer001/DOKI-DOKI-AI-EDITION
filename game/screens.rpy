@@ -359,8 +359,11 @@ style navigation_button:
 
 style navigation_button_text:
     properties gui.button_text_properties("navigation_button")
-    font "/fonts/AllerDisplay.ttf"
-    outlines [ (2, "#000000aa"), (2, "#FF00FF") ]
+    font "/fonts/RifficFree-Bold.ttf"
+    color "#fff"
+    outlines [(4, "#b59", 0, 0), (2, "#b59", 2, 2)]
+    hover_outlines [(4, "#fac", 0, 0), (2, "#fac", 2, 2)]
+    insensitive_outlines [(4, "#fce", 0, 0), (2, "#fce", 2, 2)]
 
 
 ## Main Menu screen ############################################################
