@@ -280,6 +280,7 @@ init python:
                         return emo
 
                 elif self.head_sprite in emotions:
+                    #self.head_sprite = self.head_sprite_dict[h]
 
                     self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict["none"])
                     self.leftside_sprite = self.leftside_sprite_dict["none"]
@@ -351,7 +352,7 @@ init python:
                 with open(config.basedir + f"/game/images/bg/ai_imgs.json", "r") as f:
                     ai_art = json.load(f)
 
-                # Wait for "output" to be returned by the API.
+                # Wait for "output" key to be returned by the API.
                 # Would do this asynchronously but i've failed to do so.
                 try: url = ai_art["output"][0]
                 except (IndexError, KeyError):

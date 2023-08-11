@@ -1,0 +1,9 @@
+{
+  "Scene": "park.png",
+  "scene_cache": [],
+  "Proceed": "True",
+  "head_sprite": "sad.webp",
+  "leftside_sprite": "1l.png",
+  "rightside_sprite": "1r.png",
+  "zone": "None"
+}
