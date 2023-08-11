@@ -171,7 +171,7 @@ init python:
             return "Username is not defined"
 
 
-    #TODO if the head_sprite returns a fullbody then the sides should be neutral
+
 
     class Convo(CheckData):
         def __init__(self, chat_history, full_path):
@@ -189,7 +189,6 @@ init python:
                             'flirty': 'high.png',
                             'glad': 'glad.png',
                             'happy': 'smile.png',
-                            'horny': 'monika horny.png',
                             'horrified': 'monika horrifiedYelling.png',
                             'nervous': 'nervous.png',
                             'playful frown': 'monika playfulFrown.webp', 
@@ -279,15 +278,13 @@ init python:
 
                         return emo
 
-                elif self.head_sprite in emotions:
-                    #self.head_sprite = self.head_sprite_dict[h]
+            if self.head_sprite in emotions:
+                self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict["none"])
+                self.leftside_sprite = self.leftside_sprite_dict["none"]
 
-                    self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict["none"])
-                    self.leftside_sprite = self.leftside_sprite_dict["none"]
-
-                    self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict["none"])
-                    self.rightside_sprite = self.rightside_sprite_dict["none"]
-                    return emo               
+                self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict["none"])
+                self.rightside_sprite = self.rightside_sprite_dict["none"]
+                return emo               
 
 
             for l in self.leftside_sprite_dict:
@@ -353,7 +350,7 @@ init python:
                     ai_art = json.load(f)
 
                 # Wait for "output" key to be returned by the API.
-                # Would do this asynchronously but i've failed to do so.
+                # Would do this asynchronously but i've failed to do so atm.
                 try: url = ai_art["output"][0]
                 except (IndexError, KeyError):
                     time.sleep(55)
@@ -485,7 +482,7 @@ init python:
             self.append_to_chat_history(role, msg)
 
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-16k",
+                model="gpt-4",
                 messages=self.chat_history,
                 temperature=0.6
                 )
