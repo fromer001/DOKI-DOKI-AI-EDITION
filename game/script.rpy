@@ -88,12 +88,14 @@ label justMonika:
 
     while True:
 
-        if convo.proceed == "False": # Determines if you can respond yet
-            $user_msg = "continue"
-        elif convo.proceed == "First": # The prompt template was just generated 
+        if convo.proceed == "First": # The prompt template was just generated 
             $ user_msg = "{RPT}"
+        elif convo.continue_story == 6: # Makes the narration/Character add on to what they were saying
+            $ user_msg = "continue"
         else:
             $ user_msg = renpy.input("Enter a message: ")
+            if convo.continue_story == 2:
+                $ user_msg = convo.context_to_progress_story(user_msg)
 
         $ final_msg = convo.ai_response(user_msg)
 
@@ -103,7 +105,8 @@ label justMonika:
             jump monika_zone
 
         if convo.NARRATION:
-            # Narrator is speaking
+            # Narrator is speaking | Also the reason why I'm not using 1 if statement is because for whatever
+            # reason, the cache of the previous img doesn't fully reset
             if convo.ai_art_mode == False:
                 image _bg:
                     "bg/[convo.scene]"

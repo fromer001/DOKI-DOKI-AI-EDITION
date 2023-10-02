@@ -16,6 +16,7 @@ init python:
     with open(config.basedir + "/game/prompt_templates.json", "r") as f:
         prompt = json.load(f)
 
+    #TODO replace all this with a GUI in-game
     with open(config.basedir + "/IMPORTANT_CONFIG.txt", "r") as f:
         cs_config = f.read()
 
@@ -226,7 +227,21 @@ init python:
             self.zone = self.saved_data["zone"]
             self.voice_mode = False
             self.ai_art_mode = False
+            self.continue_story = random.randint(1,7)
 
+
+        @staticmethod
+        def context_to_progress_story(msg):
+            rng = random.randint(1,3)
+            context = ""
+            if rng == 1:
+                context += " {Your next message should be a narration describing how the user is feeling}"
+            elif rng == 2:
+                context += " {Your next message should be a narration that pushes the story forward}"
+            elif rng == 3:
+                context += " {Your next message should be a narration explaining a possible way for the user to escape & how Monika would be really against that}"
+
+            return msg + context
 
 
 
@@ -301,7 +316,7 @@ init python:
 
 
         def generate_ai_background(self, guide):
-            """Generates optional AI background if the static ones aren't being used"""
+            """Generates unique AI background if it doesn't already exist in the bg folder"""
             ai_art_path = config.basedir + "/game/images/bg/"+ guide + ".png"
             if os.path.exists(ai_art_path):
                 guide = guide + ".png"
@@ -478,11 +493,13 @@ init python:
 
         def ai_response(self, msg, role="user"):
             """Gets ai generated text based off given prompt"""
+            self.continue_story = random.randint(1,7)
+
             # Log user input
             self.append_to_chat_history(role, msg)
 
             response = openai.ChatCompletion.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo-16k",
                 messages=self.chat_history,
                 temperature=0.6
                 )
@@ -494,6 +511,8 @@ init python:
             emote = self.control_mood(ai_reply)
             self.control_scene(ai_reply)
             final_res = self.remove_context_words(ai_reply)
+
+            #TODO Should only run if player has voice enabled
             if self.NARRATION != True:
                 self.monika_speaks(final_res, emote=emote)
             return final_res
