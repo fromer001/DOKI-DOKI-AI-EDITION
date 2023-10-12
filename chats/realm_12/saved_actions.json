@@ -1,8 +1,8 @@
 {
-  "Scene": "park.png",
+  "Scene": "club.png",
   "scene_cache": [],
   "Proceed": "True",
-  "head_sprite": "sad.webp",
+  "head_sprite": "curious.png",
   "leftside_sprite": "1l.png",
   "rightside_sprite": "1r.png",
   "zone": "None"

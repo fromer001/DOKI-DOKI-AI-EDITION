@@ -19,6 +19,7 @@ label splashscreen:
     scene theme
     if persistent.playerName == None:
         $ persistent.playerName = renpy.input("What is your name?", "User", allow=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").strip()
+
     
     play music "audio/music/ddlc_theme.mp3" volume 0.6
     with Pause(1)
@@ -33,7 +34,7 @@ label splashscreen:
 
 
 ################################################################################
-## Main Menu Animations (Copied from Doki Doki Literature Club)
+## Main Menu Animations (Copied from Official Doki Doki Literature Club)
 ################################################################################
 
 transform menu_bg_move:

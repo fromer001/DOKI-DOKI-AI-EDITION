@@ -6,6 +6,7 @@ define persistent.chatFolderName = None
 default user_chats = None
 
 label start:
+    $ input_popup_gui = True
     if num: # Avoid NoneType error
         if num >=0:
             jump justMonika
@@ -47,7 +48,7 @@ label nameWorld_label:
 ## Monika's Realm
 ################################################################################
 
-define monika = Character("Monika", color="#ffffff", who_outlines=[ (3, "#FF00FF") ])
+define monika = Character("Monika", color="#ffffff", window_style="textbox_monika", who_outlines=[ (3, "#77a377") ])
 default choice = None
 
 label justMonika:

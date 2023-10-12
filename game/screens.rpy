@@ -139,6 +139,15 @@ style window:
 
     background Image("gui/textbox.png", xalign=0.5, yalign=1.0)
 
+style textbox_monika is window:
+    xalign 0.5
+    xfill True
+    yalign gui.textbox_yalign
+    ysize gui.textbox_height
+
+    background Image("gui/textbox_monika.png", xalign=0.5, yalign=1.0)
+
+
 init -1 style namebox:
     xpos gui.name_xpos
     xanchor gui.name_xalign
@@ -146,8 +155,24 @@ init -1 style namebox:
     ypos gui.name_ypos
     ysize gui.namebox_height
 
-    background Frame("gui/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
+    #background Frame("gui/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
+
+    background ConditionSwitch(
+        "_last_say_who == 'monika'", Frame("gui/namebox_monika.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign),
+        )
     padding gui.namebox_borders.padding
+
+init -1 style namebox_monika:
+    xpos gui.name_xpos
+    xanchor gui.name_xalign
+    xsize gui.namebox_width
+    ypos gui.name_ypos
+    ysize gui.namebox_height
+    font "/fonts/RifficFree-Bold.ttf"
+
+    background Frame("gui/namebox_monika.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
+    padding gui.namebox_borders.padding
+
 
 style say_label:
     properties gui.text_properties("name", accent=True)
@@ -173,29 +198,49 @@ style say_dialogue:
 ##
 ## https://www.renpy.org/doc/html/screen_special.html#input
 
+default input_popup_gui = None
+
 screen input(prompt):
     style_prefix "input"
+    if input_popup_gui == None:
+        frame:
+            background Frame("gui/input_frame_bg.png", Borders(25, 25, 25, 25))
+            xalign 0.5
+            yalign 0.5
+            xpadding 30
+            ypadding 30
+            vbox:
+                spacing 5
+                xanchor gui.dialogue_text_xalign
+                xpos gui.dialogue_xpos
+                xsize gui.dialogue_width
+                ypos 10
 
-    window:
+                text prompt style "input_prompt"
+                input id "input"
+    else:
+        window:
+            vbox:
+                xanchor gui.dialogue_text_xalign
+                xpos gui.dialogue_xpos
+                xsize gui.dialogue_width
+                ypos gui.dialogue_ypos
 
-        vbox:
-            xanchor gui.dialogue_text_xalign
-            xpos gui.dialogue_xpos
-            xsize gui.dialogue_width
-            ypos gui.dialogue_ypos
-
-            text prompt style "input_prompt"
-            input id "input"
+                text prompt style "input_prompt"
+                input id "input"
 
 style input_prompt is default
 
 style input_prompt:
     xalign gui.dialogue_text_xalign
     properties gui.text_properties("input_prompt")
+    color '#fff'
+    outlines [ (2, "#ffffff"), (2, "#000") ]
 
 style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width
+    outlines [ (2, "#ffffff"), (2, "#000") ]
 
 
 ## Choice screen ###############################################################
