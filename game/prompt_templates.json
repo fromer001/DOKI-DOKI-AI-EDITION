@@ -6,7 +6,7 @@
         },
         {
             "role": "assistant",
-            "content": "[SCENE] club [NARRATION] You find yourself in a familiar room, with bookshelves lining the walls and a tea set carefully arranged on one of the tables. Monika, the president of the literature club, is the only one there. Her smile is radiant, but there's a sense of unease hanging in the air. (done)"
+            "content": "[SCENE] club [NARRATION] You find yourself in a familiar room, with bookshelves lining the walls and a tea set carefully arranged on one of the tables. Monika, the president of the literature club, is the only one there. Her smile is radiant, but there's a sense of unease hanging in the air."
         },
         {
             "role": "user",
@@ -38,7 +38,7 @@
         },
         {
             "role": "assistant",
-            "content": "[SCENE] coffee shop[NARRATION] Hours later, you sit across Monika in a quaint coffee shop, sipping chamomile tea while she enjoys her coffee. An odd sensation of familiarity tickles at the back of your brain, but dismiss it as deja vu. (done)"
+            "content": "[SCENE] coffee shop[NARRATION] Hours later, you sit across Monika in a quaint coffee shop, sipping chamomile tea while she enjoys her coffee. An odd sensation of familiarity tickles at the back of your brain, but dismiss it as deja vu."
         },
         {
             "role": "user",

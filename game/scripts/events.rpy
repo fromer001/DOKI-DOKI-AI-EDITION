@@ -44,7 +44,6 @@ init python:
             self.saved_actions = "saved_actions.json"
             self.saved_data = {
                                 "Scene": "club.png",
-                                "scene_cache": [],
                                 "Proceed": "First",
                                 "head_sprite": "smile.png",
                                 "leftside_sprite": "1l.png",
@@ -212,8 +211,8 @@ init python:
                             }
             self.bg_scenes = {"bedroom": "bedroom.png", "club": "club.png", "class": "class.png",
             "coffee shop": "coffee.jpg", "hallway": "hallway.png", "kitchen": "kitchen.png",
-            "mc house": "house.png", "user house": "house.png", "user's house": "house.png", "house": "house.png",
-            "sidewalk": "sidewalk.png"}
+            "mc house": "house.png", "sayori's bedroom": "sayori_bedroom.png", "sayori bedroom": "sayori_bedroom.png", "sidewalk": "sidewalk.png",
+            "user house": "house.png", "user's house": "house.png", "house": "house.png" }
             self.context_words = [
                 "(done)", "(continue)", "[CONTENT]", "[MUSIC]", "[NARRATION]"
                 ]
@@ -394,15 +393,13 @@ init python:
                     return self.saved_data["Scene"]
 
             if "[SCENE]" in scene:
-                scene = scene.split("[SCENE]")
-                scene = scene[1].split("[NARRATION]")
-                scene = scene[0].strip()
+                scene = scene.split("[SCENE]")[1].split("[NARRATION]")[0].strip()
                 return self.generate_ai_background(scene)
 
 
 
         def control_proceed(self, mode):
-            """Determines if the user can respond to the AI at this moment"""
+            """Determines if the user can respond & if the bg has changed"""
             self.update_in_saved_actions("Proceed", mode)
             self.proceed = mode
             return self.saved_data["Proceed"]
@@ -420,38 +417,18 @@ init python:
                 self.zone = "Zone"
 
             if "[NARRATION]" in reply:
-                if "(done)" in reply:
-                    self.control_proceed("True") # User can now respond to AI
-                    self.NARRATION = True
-                else:
-                    self.control_proceed("False") # Narrator is still speaking
-                    self.NARRATION = True
-
+                self.control_proceed("True") # User can now respond to AI
+                self.NARRATION = True
             else:
                 self.NARRATION = False
 
-            if "[OPTION 1]" in reply and reply != "[OPTION] None":
-                self.options = []
-                options = reply.split("\"")
-                self.options.append(options[1])
-                self.options.append(options[3])
-                self.options.append(options[5])
-            else:
-                self.options = []
-            
-            reply = reply.split("[BODY]")
-            reply = reply[0].split("[MOOD]")[0]
+            reply = reply.split("[BODY]")[0].split("[MOOD]")[0]
 
             for ctx in self.context_words:
                 reply = reply.replace(ctx, "")
 
-            img = self.scene
-            img = img.replace(".png", "")
+            img = self.scene.replace(".png", "")
             reply = reply.replace("[SCENE] "+img, "")
-
-            for ops in self.options:
-                reply = ' '.join([word for word in reply.split(ops) if ops not in word])
-            reply = reply.replace("[OPTION 1]", "").replace("[OPTION 2]", "").replace("[OPTION 3]", "").replace("\"", "")
 
             return reply
 
@@ -494,6 +471,10 @@ init python:
         def ai_response(self, msg, role="user"):
             """Gets ai generated text based off given prompt"""
             self.continue_story = random.randint(1,7)
+            if "(init_end_sim)" in msg:
+                self.update_in_saved_actions("zone", "Zone")
+                self.zone = "Zone"
+                return '...'
 
             # Log user input
             self.append_to_chat_history(role, msg)
@@ -514,7 +495,8 @@ init python:
 
             #TODO Should only run if player has voice enabled
             if self.NARRATION != True:
-                self.monika_speaks(final_res, emote=emote)
+                #self.monika_speaks(final_res, emote=emote)
+                pass
             return final_res
 
 
