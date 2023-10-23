@@ -41,6 +41,7 @@ label nameWorld_label:
     if chatmode_num == 0:
         jump justMonika
     else:
+        # Currently disabled
         jump justMonika_Storymode
     return
 

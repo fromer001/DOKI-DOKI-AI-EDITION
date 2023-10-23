@@ -1572,8 +1572,10 @@ screen chatmode_screen():
         hover "gui/gamemode/selected_mode.png"
 
         hover_sound "audio/sfx/hover.wav"
+        #activate_sound "audio/sfx/select_sfx.wav"
+        #action [SetVariable("chatmode_num", 1), Jump("gamemode_label")]
         activate_sound "audio/sfx/select_sfx.wav"
-        action [SetVariable("chatmode_num", 1), Jump("gamemode_label")]
+        action [SetScreenVariable("placeholder", 1)]
     
     image "gui/gamemode/freechat_title.png" zoom 0.20 ypos 233 xpos 175
     image "gui/gamemode/freechat_desc.png" zoom 0.24 ypos 270 xpos 200
