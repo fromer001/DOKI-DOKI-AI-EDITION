@@ -1,0 +1,37 @@
+{
+    "monika":{
+        "head": {
+            "angry": "monika serious.webp",
+            "annoyed": "annoyed.png",
+            "blushing": "monika blushing.png",
+            "concerned": "curious.png",
+            "crying": "cry.png",
+            "curious": "curious.png",
+            "embarrassed": "embarrassed.png",
+            "flabbergasted": "monika flabbergasted.png",
+            "flirty": "high.png",
+            "glad": "glad.png",
+            "happy": "smile.png",
+            "horrified": "monika horrifiedYelling.png",
+            "nervous": "nervous.png",
+            "playful frown": "monika playfulFrown.webp", 
+            "playful smile": "monika playfulSmile.webp", 
+            "really happy": "smileOpenMouth.png", 
+            "resolve": "annoyed_speaking.png", 
+            "sad": "sad.webp", 
+            "scared": "monika scared.png", 
+            "serious": "monika serious.webp", 
+            "shocked": "monika shocked.png", 
+            "worried": "worried.png"
+        },
+        "left": {
+        "explain": "2l.png",
+        "relaxed": "1l.png"
+        },
+        "right": {
+            "explain": "2r.png",
+            "relaxed": "1r.png"
+        },
+        "none": "mtea.png"
+    }
+}

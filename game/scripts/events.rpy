@@ -178,37 +178,6 @@ init python:
             super().__init__(full_path)
             self.full_path = full_path
             self.chat_history = chat_history
-            self.head_sprite_dict = {'angry': 'monika serious.webp',
-                            'annoyed': 'annoyed.png',
-                            'blushing': 'monika blushing.png',
-                            'concerned': 'curious.png',
-                            'crying': 'cry.png',
-                            'curious': 'curious.png',
-                            'embarrassed': 'embarrassed.png',
-                            'flabbergasted': 'monika flabbergasted.png',
-                            'flirty': 'high.png',
-                            'glad': 'glad.png',
-                            'happy': 'smile.png',
-                            'horrified': 'monika horrifiedYelling.png',
-                            'nervous': 'nervous.png',
-                            'playful frown': 'monika playfulFrown.webp', 
-                            'playful smile': 'monika playfulSmile.webp', 
-                            'really happy': 'smileOpenMouth.png', 
-                            'resolve': 'annoyed_speaking.png', 
-                            'sad': 'sad.webp', 
-                            'scared': 'monika scared.png', 
-                            'serious': 'monika serious.webp', 
-                            'shocked': 'monika shocked.png', 
-                            'worried': 'worried.png'
-                            }
-            self.leftside_sprite_dict = {'explain': '2l.png',
-                            'relaxed': '1l.png',
-                            'none': 'mtea.png',
-                            }
-            self.rightside_sprite_dict = {'explain': '2r.png',
-                            'relaxed': '1r.png',
-                            'none': 'mtea.png',
-                            }
             self.bg_scenes = {"bedroom": "bedroom.png", "club": "club.png", "class": "class.png",
             "coffee shop": "coffee.jpg", "hallway": "hallway.png", "kitchen": "kitchen.png",
             "mc house": "house.png", "sayori's bedroom": "sayori_bedroom.png", "sayori bedroom": "sayori_bedroom.png", "sidewalk": "sidewalk.png",
@@ -233,6 +202,7 @@ init python:
         def context_to_progress_story(msg):
             rng = random.randint(1,3)
             context = ""
+            #TODO: Put this in a json
             if rng == 1:
                 context += " {Your next message should be a narration describing how the user is feeling}"
             elif rng == 2:
@@ -242,6 +212,12 @@ init python:
 
             return msg + context
 
+    
+        def get_char_name(self, gptReply):
+            if "[CHAR]" in gptReply:
+                pass
+            # Just Monika
+            return "monika"
 
 
         def append_to_chat_history(self, role, msg):
@@ -272,44 +248,50 @@ init python:
 
             emo = "Neutral"
 
-            for h in self.head_sprite_dict:
-                if "[MOOD] "+h in mood:
-                    self.update_in_saved_actions("head_sprite", self.head_sprite_dict[h])
-                    self.head_sprite = self.head_sprite_dict[h]
+            with open(f"{config.basedir}/game/assets/chars/chars.json", "r") as f:
+                raw_chars = json.load(f)
 
-                    # Adding tone to monika's voice
+            char_name = self.get_char_name(mood)
+            for h in raw_chars[char_name]['head']:
+                if "[MOOD] "+h in mood:
+                    self.update_in_saved_actions("head_sprite", raw_chars[char_name]['head'][h])
+                    self.head_sprite = raw_chars[char_name]['head'][h]
+
+                    # Adding tone to char's voice 
+                    """
                     for vocal_list in vocal_emotions.items():
                         if h in vocal_list:
                             emo = vocal_list[0]
                             break
+                    """
 
                     if h in emotions:
-                        self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict["none"])
-                        self.leftside_sprite = self.leftside_sprite_dict["none"]
+                        self.update_in_saved_actions("leftside_sprite", raw_chars[char_name]["none"])
+                        self.leftside_sprite = raw_chars[char_name]["none"]
 
-                        self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict["none"])
-                        self.rightside_sprite = self.rightside_sprite_dict["none"]
+                        self.update_in_saved_actions("rightside_sprite", raw_chars[char_name]["none"])
+                        self.rightside_sprite = raw_chars[char_name]["none"]
 
                         return emo
 
             if self.head_sprite in emotions:
-                self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict["none"])
-                self.leftside_sprite = self.leftside_sprite_dict["none"]
+                self.update_in_saved_actions("leftside_sprite", raw_chars[char_name]["none"])
+                self.leftside_sprite = raw_chars[char_name]["none"]
 
-                self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict["none"])
-                self.rightside_sprite = self.rightside_sprite_dict["none"]
+                self.update_in_saved_actions("rightside_sprite", raw_chars[char_name]["none"])
+                self.rightside_sprite = raw_chars[char_name]["none"]
                 return emo               
 
 
-            for l in self.leftside_sprite_dict:
+            for l in raw_chars[char_name]['left']:
                 if "[BODY] "+l in mood:
-                    self.update_in_saved_actions("leftside_sprite", self.leftside_sprite_dict[l])
-                    self.leftside_sprite = self.leftside_sprite_dict[l]
+                    self.update_in_saved_actions("leftside_sprite", raw_chars[char_name]['left'][l])
+                    self.leftside_sprite = raw_chars[char_name]['left'][l]
 
-            for rr in self.rightside_sprite_dict:
+            for rr in raw_chars[char_name]['right']:
                 if "[BODY] "+rr in mood:
-                    self.update_in_saved_actions("rightside_sprite", self.rightside_sprite_dict[rr])
-                    self.rightside_sprite = self.rightside_sprite_dict[rr]
+                    self.update_in_saved_actions("rightside_sprite", raw_chars[char_name]['right'][rr])
+                    self.rightside_sprite = raw_chars[char_name]['right'][rr]
 
             return emo
 
@@ -323,7 +305,6 @@ init python:
                 self.scene = guide
                 self.ai_art_mode = True
                 return self.scene
-            self.saved_data["scene_cache"].append(guide+".png")
 
             url = "https://stablediffusionapi.com/api/v3/text2img"
 
@@ -433,8 +414,8 @@ init python:
             return reply
 
 
-        def monika_speaks(self, reply, emote):
-            """Convert Monika's text into vocals"""
+        def char_speaks(self, reply, emote):
+            """Convert character's text into vocals"""
             url = "https://app.coqui.ai/api/v2/samples/from-prompt/"
             payload = {
                 "prompt": "An 18 year old girl with a sweet voice",
@@ -486,6 +467,7 @@ init python:
                 )
             
             ai_reply = response.choices[0].message.content
+
             # Log AI input
             self.append_to_chat_history('assistant', ai_reply)
 
@@ -495,7 +477,7 @@ init python:
 
             #TODO Should only run if player has voice enabled
             if self.NARRATION != True:
-                #self.monika_speaks(final_res, emote=emote)
+                #self.char_speaks(final_res, emote=emote)
                 pass
             return final_res
 
