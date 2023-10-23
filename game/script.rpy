@@ -35,8 +35,8 @@ label nameWorld_label:
     $ motto = renpy.random.randint(1,15)
     if motto == 15:    
         scene black with dissolve
-        play sound "audio/sfx/one more time.mp3"
-        $ renpy.pause(5, hard=True)
+        play sound "audio/sfx/can you hear me.mp3"
+        $ renpy.pause(11, hard=True)
 
     if chatmode_num == 0:
         jump justMonika
