@@ -168,7 +168,7 @@ init -1 style namebox_monika:
     xsize gui.namebox_width
     ypos gui.name_ypos
     ysize gui.namebox_height
-    font "/fonts/RifficFree-Bold.ttf"
+    font "gui/font/RifficFree-Bold.ttf"
 
     background Frame("gui/namebox_monika.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
     padding gui.namebox_borders.padding
@@ -202,7 +202,7 @@ default input_popup_gui = None
 
 screen input(prompt):
     style_prefix "input"
-    if input_popup_gui == None:
+    if input_popup_gui == "nothing for now":
         frame:
             background Frame("gui/input_frame_bg.png", Borders(25, 25, 25, 25))
             xalign 0.5
@@ -265,7 +265,7 @@ style choice_button_text is button_text
 
 style choice_vbox:
     xalign 0.5
-    ypos 405
+    ypos 270
     yanchor 0.5
 
     spacing gui.choice_spacing
@@ -337,7 +337,7 @@ screen navigation():
         style_prefix "navigation"
 
         xpos gui.navigation_xpos
-        yalign 0.7
+        yalign 0.8
 
         spacing gui.navigation_spacing
 
@@ -383,9 +383,9 @@ screen navigation():
             textbutton _("Help"):
                 hover_sound "audio/sfx/hover_doki.ogg"
                 activate_sound "audio/sfx/select_doki.ogg"
-                action ShowMenu("help")
+                #action ShowMenu("help")
+                action [Help("README.html"), Show(screen="dialog", message="The help file has been opened in your browser.", ok_action=Hide("dialog"))]
 
-        if renpy.variant("pc"):
 
             ## The quit button is banned on iOS and unnecessary on Android and
             ## Web.
@@ -404,7 +404,7 @@ style navigation_button:
 
 style navigation_button_text:
     properties gui.button_text_properties("navigation_button")
-    font "/fonts/RifficFree-Bold.ttf"
+    font "gui/font/RifficFree-Bold.ttf"
     color "#fff"
     outlines [(4, "#b59", 0, 0), (2, "#b59", 2, 2)]
     hover_outlines [(4, "#fac", 0, 0), (2, "#fac", 2, 2)]
@@ -454,7 +454,10 @@ style main_menu_frame is empty
 style main_menu_vbox is vbox
 style main_menu_text is gui_text
 style main_menu_title is main_menu_text
-style main_menu_version is main_menu_text
+style main_menu_version is main_menu_text:
+    color "#000000"
+    size 16
+    outlines []
 
 style main_menu_frame:
     xsize 420
@@ -470,13 +473,17 @@ style main_menu_vbox:
     yoffset -30
 
 style main_menu_text:
-    properties gui.text_properties("main_menu", accent=True)
+    xalign 1.0
+
+    layout "subtitle"
+    text_align 1.0
+    color gui.accent_color
 
 style main_menu_title:
     properties gui.text_properties("title")
 
 style main_menu_version:
-    properties gui.text_properties("version")
+    size gui.title_text_size
 
 
 ## Game Menu screen ############################################################
@@ -494,13 +501,13 @@ screen game_menu(title, scroll=None, yinitial=0.0):
 
 
     if main_menu:
+        vbox:
+            style "main_menu_vbox"
+            text "[config.version]":
+                style "main_menu_version"
+
         add gui.main_menu_background
-        add gui.yur
-        add gui.say
-        add gui.nat
-        add gui.mon
-        add gui.logo
-        add gui.particles
+
     else:
         add gui.game_menu_background
 
@@ -604,8 +611,10 @@ style game_menu_label:
     ysize 180
 
 style game_menu_label_text:
+    font "gui/font/RifficFree-Bold.ttf"
     size gui.title_text_size
-    color gui.accent_color
+    color "#fff"
+    outlines [(6, "#b59", 0, 0), (3, "#b59", 2, 2)]
     yalign 0.5
 
 style return_button:
@@ -766,6 +775,8 @@ style page_label:
     ypadding 5
 
 style page_label_text:
+    color "#000"
+    outlines []
     text_align 0.5
     layout "subtitle"
     hover_color gui.hover_color
@@ -781,6 +792,8 @@ style slot_button:
 
 style slot_button_text:
     properties gui.button_text_properties("slot_button")
+    color "#666"
+    outlines []
 
 
 ## Preferences screen ##########################################################
@@ -794,7 +807,12 @@ screen preferences():
 
     tag menu
 
-    use game_menu(_("Preferences"), scroll="viewport"):
+    if renpy.mobile:
+        $ cols = 2
+    else:
+        $ cols = 4
+
+    use game_menu(_("Settings"), scroll="viewport"):
 
         vbox:
 
@@ -869,7 +887,10 @@ screen preferences():
                         textbutton _("Mute All"):
                             action Preference("all mute", "toggle")
                             style "mute_all_button"
-
+    text "v[config.version]":
+        xalign 1.0 yalign 1.0
+        xoffset -10 yoffset -10
+        style "main_menu_version"
 
 style pref_label is gui_label
 style pref_label_text is gui_label_text
@@ -902,6 +923,10 @@ style pref_label:
     bottom_margin 3
 
 style pref_label_text:
+    font "gui/font/RifficFree-Bold.ttf"
+    size 24
+    color "#fff"
+    outlines [(3, "#b59", 0, 0), (1, "#b59", 1, 1)]
     yalign 1.0
 
 style pref_vbox:
@@ -912,10 +937,14 @@ style radio_vbox:
 
 style radio_button:
     properties gui.button_properties("radio_button")
-    foreground "gui/button/radio_[prefix_]foreground.png"
+    foreground "gui/button/check_[prefix_]foreground.png"
+
 
 style radio_button_text:
     properties gui.button_text_properties("radio_button")
+    font "gui/font/Halogen.ttf"
+    color "#333"
+    outlines []
 
 style check_vbox:
     spacing gui.pref_button_spacing
@@ -926,6 +955,9 @@ style check_button:
 
 style check_button_text:
     properties gui.button_text_properties("check_button")
+    font "gui/font/Halogen.ttf"
+    color "#333"
+    outlines []
 
 style slider_slider:
     xsize 525
@@ -1477,7 +1509,7 @@ style nvl_button_text:
 
 
 style sayori_text:
-    font "fonts/s1.ttf"
+    font "gui/font/s1.ttf"
     size 34
     color "#000"
     outlines []
@@ -1528,10 +1560,9 @@ screen custom_save_screen():
 
 ## Chat Version ##############################################################
 ##
-## Free chat & Story mode. Free chat allows the user to talk freely and the story
-## is generated along the way based off that. Story mode is a bit more
-## restricted, the AI generates choices for the user to choose but the story
-## flows more because of this. 
+## Free chat & Story mode. Free chat allows the user to talk freely with minimal
+## plot going on. Story mode has human-made stories involved merged with AI gen-
+## erated dialouge.
 
 default chatmode_num = None
 
@@ -1650,8 +1681,92 @@ screen display_everyone_desc:
 
 
 
+screen dialog(message, ok_action):
 
 
+    modal True
+
+    zorder 200
+
+    style_prefix "confirm"
+
+    add "gui/overlay/confirm.png"
+
+    frame:
+
+        has vbox:
+            xalign .5
+            yalign .5
+            spacing 30
+
+        label _(message):
+            style "confirm_prompt"
+            xalign 0.5
+
+        hbox:
+            xalign 0.5
+            spacing 100
+
+            textbutton _("OK") action ok_action
+
+
+
+screen confirm(message, yes_action, no_action):
+
+
+    modal True
+
+    zorder 200
+
+    style_prefix "confirm"
+
+    add "gui/overlay/confirm.png"
+
+    frame:
+
+        has vbox:
+            xalign .5
+            yalign .5
+            spacing 30
+
+        label _(message):
+            style "confirm_prompt"
+            xalign 0.5
+
+        hbox:
+            xalign 0.5
+            spacing 100
+
+            textbutton _("Yes") action yes_action
+            textbutton _("No") action no_action
+
+
+
+style confirm_frame is gui_frame
+style confirm_prompt is gui_prompt
+style confirm_prompt_text is gui_prompt_text
+style confirm_button is gui_medium_button
+style confirm_button_text is gui_medium_button_text
+
+style confirm_frame:
+    background Frame([ "gui/confirm_frame.png", "gui/frame.png"], gui.confirm_frame_borders, tile=gui.frame_tile)
+    padding gui.confirm_frame_borders.padding
+    xalign .5
+    yalign .5
+
+style confirm_prompt_text:
+    color "#000"
+    outlines []
+    text_align 0.5
+    layout "subtitle"
+
+style confirm_button:
+    properties gui.button_properties("confirm_button")
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style confirm_button_text is navigation_button_text:
+    properties gui.button_text_properties("confirm_button")
 
 ################################################################################
 ## Mobile Variants

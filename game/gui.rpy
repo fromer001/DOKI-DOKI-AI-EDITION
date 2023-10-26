@@ -17,6 +17,8 @@ init python:
 ## GUI Configuration Variables
 ################################################################################
 
+define gui.hover_sound = "audio/sfx/hover_doki.ogg"
+define gui.activate_sound = "audio/sfx/select_doki.ogg"
 
 ## An accent color used throughout the interface to label and highlight text.
 define gui.accent_color = '#c7f1ff'
@@ -51,13 +53,13 @@ define gui.interface_text_color = '#ffffff'
 ## Fonts and Font Sizes ########################################################
 
 ## The font used for in-game text.
-define gui.text_font = "/fonts/Aller_Rg.ttf"
+define gui.text_font = "gui/font/Aller_Rg.ttf"
 
 ## The font used for character names.
-define gui.name_text_font = "/fonts/RifficFree-Bold.ttf"
+define gui.name_text_font = "gui/font/RifficFree-Bold.ttf"
 
 ## The font used for out-of-game text.
-define gui.interface_text_font = "/fonts/AllerDisplay.ttf"
+define gui.interface_text_font = "gui/font/AllerDisplay.ttf"
 
 ## The size of normal dialogue text.
 define gui.text_size = 20

@@ -2,39 +2,33 @@ init python:
     import asyncio
     import aiohttp
     import json
-    from dotenv import load_dotenv
     import openai
     import os
     import random
     import requests
     import math
     import time
+    import base64
+    import io
 
-    load_dotenv(".env")
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    with open(config.basedir + "/PRIVATE_TOKENS_DO_NOT_SHARE.json") as f:
+        TOKEN = json.load(f)
+
+    TOKEN['gptToken'] = persistent.chatToken
+    TOKEN['getimgToken'] = persistent.imgToken
+    TOKEN['stableImgToken'] = persistent.imgToken
+    with open(config.basedir + "/PRIVATE_TOKENS_DO_NOT_SHARE.json", 'w') as f:
+        json.dump(TOKEN, f)
+
+    openai.api_key = TOKEN['gptToken']
+    getimgToken = TOKEN['getimgToken']
+    stable_token = TOKEN['stableImgToken']
+    #vocal_token = cs_config['VOCAL_TOKEN']
+
 
     with open(config.basedir + "/game/prompt_templates.json", "r") as f:
         prompt = json.load(f)
-
-    #TODO replace all this with a GUI in-game
-    with open(config.basedir + "/IMPORTANT_CONFIG.txt", "r") as f:
-        cs_config = f.read()
-
-    def read_config(file_path):
-        config_dict = {}
-        with open(file_path, 'r') as file:
-            for line in file:
-                if "#" not in line:            
-                    key, value = line.strip().split('=')
-                    config_dict[key] = value
-        return config_dict
-
-    config_file_path = config.basedir + '/IMPORTANT_CONFIG.txt'
-    cs_config = read_config(config_file_path)
-
-    stable_token = cs_config['STABLE_TOKEN']
-    vocal_token = cs_config['VOCAL_TOKEN']
-
 
     class ManageChat_Folders:
         def __init__(self):
@@ -180,7 +174,8 @@ init python:
             self.chat_history = chat_history
             self.bg_scenes = {"bedroom": "bedroom.png", "club": "club.png", "class": "class.png",
             "coffee shop": "coffee.jpg", "hallway": "hallway.png", "kitchen": "kitchen.png",
-            "mc house": "house.png", "sayori's bedroom": "sayori_bedroom.png", "sayori bedroom": "sayori_bedroom.png", "sidewalk": "sidewalk.png",
+            "mc house": "house.png", "sayori's bedroom": "sayori_bedroom.png", "sayori bedroom": "sayori_bedroom.png",
+            "Sayori's bedroom": "sayori_bedroom.png", "sidewalk": "sidewalk.png",
             "user house": "house.png", "user's house": "house.png", "house": "house.png" }
             self.context_words = [
                 "(done)", "(continue)", "[CONTENT]", "[MUSIC]", "[NARRATION]"
@@ -195,22 +190,31 @@ init python:
             self.zone = self.saved_data["zone"]
             self.voice_mode = False
             self.ai_art_mode = False
-            self.continue_story = random.randint(1,7)
+            self.rnd = random.randint(1,7)
 
 
         @staticmethod
         def context_to_progress_story(msg):
             rng = random.randint(1,3)
             context = ""
-            #TODO: Put this in a json
+
+            with open(f"{config.basedir}/game/assets/prompts/progress_story.json") as f:
+                structs = json.load(f)
             if rng == 1:
-                context += " {Your next message should be a narration describing how the user is feeling}"
+                context += structs["1"]
             elif rng == 2:
-                context += " {Your next message should be a narration that pushes the story forward}"
+                context += structs["2"]
             elif rng == 3:
-                context += " {Your next message should be a narration explaining a possible way for the user to escape & how Monika would be really against that}"
+                context += structs["3"]
 
             return msg + context
+
+        @staticmethod
+        def enforce_static_emotes(msg):
+            # TODO: Must be specific to char instead of just monika atm
+            with open(f"{config.basedir}/game/assets/prompts/static_emotes.json") as f:
+                emotes = json.load(f)
+            return msg + emotes['monika']
 
     
         def get_char_name(self, gptReply):
@@ -273,14 +277,19 @@ init python:
                         self.rightside_sprite = raw_chars[char_name]["none"]
 
                         return emo
+            
+            # If the AI returns a [MOOD] that isnt listed then the l and r parts should be invis.
+            for e in emotions:
+                if self.head_sprite == raw_chars[char_name]['head'][e]:
+                    self.update_in_saved_actions("leftside_sprite", raw_chars[char_name]["none"])
+                    self.leftside_sprite = raw_chars[char_name]["none"]
 
-            if self.head_sprite in emotions:
-                self.update_in_saved_actions("leftside_sprite", raw_chars[char_name]["none"])
-                self.leftside_sprite = raw_chars[char_name]["none"]
+                    self.update_in_saved_actions("rightside_sprite", raw_chars[char_name]["none"])
+                    self.rightside_sprite = raw_chars[char_name]["none"]
 
-                self.update_in_saved_actions("rightside_sprite", raw_chars[char_name]["none"])
-                self.rightside_sprite = raw_chars[char_name]["none"]
-                return emo               
+                    with open(f"{config.basedir}/test.txt", "w") as f:
+                        f.write("teeeest: this snippet was executed")
+                    return emo               
 
 
             for l in raw_chars[char_name]['left']:
@@ -296,22 +305,51 @@ init python:
             return emo
 
 
-        def generate_ai_background(self, guide):
-            """Generates unique AI background if it doesn't already exist in the bg folder"""
-            ai_art_path = config.basedir + "/game/images/bg/"+ guide + ".png"
-            if os.path.exists(ai_art_path):
-                guide = guide + ".png"
-                self.update_in_saved_actions("Scene", guide)
-                self.scene = guide
-                self.ai_art_mode = True
-                return self.scene
+        def getimgai(self, guide):
+            url = "https://api.getimg.ai/v1/stable-diffusion/text-to-image"
+            with open(f"{config.basedir}/game/assets/prompts/img_generation.json") as f:
+                scene = json.load(f)
 
+            payload = {
+                "model": "dark-sushi-mix-v2-25",
+                "prompt":  scene["getimg"]["prompt"].replace("<guide>", guide),
+                "negative_prompt": scene["stable"]["negative"],
+                "width": 1024,
+                "height": 1024,
+                "steps": 30,
+                "guidance": 9,
+                "output_format": "png"
+            }
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json",
+                "authorization": f"Bearer {getimgToken}"
+            }
+
+            r = requests.post(url, json=payload, headers=headers).json()
+            guide = guide + ".png"
+            if "error" not in r:
+                with open(f"{config.basedir}/game/images/bg/{guide}", "wb") as f:
+                    f.write(base64.b64decode(r["image"]))
+                    self.update_in_saved_actions("Scene", guide)
+                    self.scene = guide
+                    self.ai_art_mode = True
+            else:
+                self.ai_art_mode = False
+
+
+
+
+
+        def stableimg(self, guide):
             url = "https://stablediffusionapi.com/api/v3/text2img"
+            with open(f"{config.basedir}/game/assets/prompts/img_generation.json") as f:
+                scene = json.load(f)
 
             payload = json.dumps({
             "key": stable_token,
-            "prompt": "mdjrny-v4 style background anime scenery in " + guide + " hyperrealistic, highly detailed, cinematic lighting, stunningly beautiful, intricate, sharp focus, (professionally color graded), ((bright soft diffused light)), volumetric fog, trending on instagram, trending on tumblr, HDR 4K, 8K",
-            "negative_prompt": "Disfigured, cartoon, blurry, nude, 1girl, 1boy, character",
+            "prompt": scene["stable"]["prompt"].replace("<guide>", guide),
+            "negative_prompt": scene["stable"]["negative"],
             "width": "1024",
             "height": "1024",
             "samples": "1",
@@ -348,7 +386,7 @@ init python:
                 # Would do this asynchronously but i've failed to do so atm.
                 try: url = ai_art["output"][0]
                 except (IndexError, KeyError):
-                    time.sleep(55)
+                    time.sleep(25)
                     try: url = ai_art["output"][0]
                     except (IndexError, KeyError): return guide
                 response = requests.get(url)
@@ -363,6 +401,21 @@ init python:
                 self.ai_art_mode = False
 
             return guide
+
+        def generate_ai_background(self, guide):
+            """Generates unique AI background if it doesn't already exist in the bg folder"""
+            ai_art_path = config.basedir + "/game/images/bg/"+ guide + ".png"
+            if os.path.exists(ai_art_path):
+                guide = guide + ".png"
+                self.update_in_saved_actions("Scene", guide)
+                self.scene = guide
+                self.ai_art_mode = True
+                return self.scene
+
+            if persistent.imgModel == "1":
+                return self.getimgai(guide)
+            elif persistent.imgModel == "2":
+                return self.stableimg(guide)
 
 
         def control_scene(self, scene):
@@ -451,7 +504,7 @@ init python:
 
         def ai_response(self, msg, role="user"):
             """Gets ai generated text based off given prompt"""
-            self.continue_story = random.randint(1,7)
+            self.rnd = random.randint(1,7)
             if "(init_end_sim)" in msg:
                 self.update_in_saved_actions("zone", "Zone")
                 self.zone = "Zone"
@@ -463,7 +516,8 @@ init python:
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo-16k",
                 messages=self.chat_history,
-                temperature=0.6
+                temperature=0.6,
+                max_tokens=90
                 )
             
             ai_reply = response.choices[0].message.content

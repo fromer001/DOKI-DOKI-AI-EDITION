@@ -92,12 +92,14 @@ label justMonika:
 
         if convo.proceed == "First": # The prompt template was just generated 
             $ user_msg = "{RPT}"
-        elif convo.continue_story == 6: # Makes the narration/Character add on to what they were saying
+        elif convo.rnd == 6: # Makes the narration/Character add on to what they were saying
             $ user_msg = "continue"
         else:
             $ user_msg = renpy.input("Enter a message: ")
-            if convo.continue_story == 2:
+            if convo.rnd == 1:
                 $ user_msg = convo.context_to_progress_story(user_msg)
+            if convo.rnd == 2:
+                $ user_msg = convo.enforce_static_emotes(user_msg)
 
         $ final_msg = convo.ai_response(user_msg)
 
@@ -108,7 +110,9 @@ label justMonika:
 
         if convo.NARRATION:
             # Narrator is speaking | Also the reason why I'm not using 1 if statement is because for whatever
-            # reason, the cache of the previous img doesn't fully reset
+            # reason, the cache of the previous img doesn't fully reset & the "zoom" remains the same.
+            # The AI bg can only be 1024 x 1024 (max) and to fill the screen I need to use zoom.
+            # I could import Pillow and resize it that way but installing it isnt working atm.
             if convo.ai_art_mode == False:
                 image _bg:
                     "bg/[convo.scene]"

@@ -1,8 +1,22 @@
 define persistent.playerName = None
+define persistent.chatModel = None
+define persistent.imgModel = None
+#define persistent.charVoice = None
+define persistent.chatToken = None
+define persistent.imgToken = None
+
 #define truecenter = Position(xalign=0.5, yalign=0.5)
 
 image theme:
     "bg/theme.png"
+
+image warning:
+    "bg/warning.png"
+
+image ai_mods:
+    "assets/imgs/both.png"
+    yalign 0.5
+    
 image white = "#ffffff"
 
 label splashscreen:
@@ -16,15 +30,65 @@ label splashscreen:
     if s_kill_early:
         jump now_everyone_can_be_happy
 
-    scene theme
     if persistent.playerName == None:
+        scene warning
         $ persistent.playerName = renpy.input("What is your name?", "User", allow=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").strip()
 
-    
+    if persistent.chatModel == None:
+        "Because the A.I. models arent locally hosted, please follow the steps listed on the github page. https://github.com/syntax-z/DOKI-DOKI-AI-EDITION"
+        "If you aren't able to do that at this moment, you can skip all these steps and change them in the settings later. But the game wont work until you complete them"
+
+        "Which Language model would you like to use?"
+        "1 is for 'chatGPT' (recommended)"
+        $ chatModel = renpy.input("Which AI model would you like to use? (enter '1')", "1", allow="1").strip()
+        if chatModel == "1":
+            "You chose chatGPT!"
+        #elif chatModel == "2":
+        #    "You choose Bard!"
+        else:
+            "Not a valid chat model, change this in the settings once you get the chance!"
+
+        # Ensures that if the user exited out of the game before completing the steps, they can finish
+        # when they reload
+        $ persistent.chatModel = chatModel
+
+    if persistent.chatToken == None:
+        "Do NOT share any of your tokens to ANYONE. Your tokens will be used here strictly for generating responses."
+        "If someone you do not trust gets it, they can send multiple request to the API, costing you money."
+        "If you think your token has some how been exposed, you can reset it on the official page."
+        $ chatToken = renpy.input("Enter your openAI (chatGPT) token: ").strip()
+
+        "If you misclicked or entered the wrong token by accident, you can always change it in the settings."
+
+        $ persistent.chatToken = chatToken
+
+    if persistent.imgModel == None:
+        "Which Image generation model would you like to use?"
+        "1 is for 'getimgai' (recommended) and 2 is for 'stablediffusionapi' (You can tweak these later in the settings)"
+        $ imgModel = renpy.input("Which Image generation model would you like to use?(1 or 2)", "1", allow="12").strip()
+        if imgModel == "1":
+            "You chose getimgai!"
+        elif imgModel == "2":
+            "You choose stablediffusionapi!"
+        else:
+            "Not a valid image model, change this in the settings once you get the chance!"
+
+        "(reminder) Because the A.I. models arent locally hosted, please follow the steps listed on the github page. https://github.com/syntax-z/DOKI-DOKI-AI-EDITION"
+        "(reminder) If you aren't able to do that at this moment, you can skip the next step and change them in the settings later. But the game wont work until you complete the steps."
+
+        $ persistent.imgModel = imgModel
+
+    if persistent.imgToken == None:
+        $ imgToken = renpy.input("Enter your image generation token: ").strip()
+        "If you misclicked or entered the wrong token by accident, you can always change it in the settings."
+        $ persistent.imgToken = imgToken
+
+    scene theme
+
     play music "audio/music/ddlc_theme.mp3" volume 0.6
     with Pause(1)
 
-    show text "This game is not suitable for children\nor those who are easily disturbed." with dissolve
+    show text "Please remember that this is just a game and\nthe Doki's aren't actually real." with dissolve
     $ renpy.pause(3, hard=True)
     hide text with dissolve
     with Pause(1.3)

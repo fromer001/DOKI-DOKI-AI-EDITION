@@ -1,3 +1,0 @@
-# DO NOT SHOW YOUR TOKENS TO OTHER USERS #
-STABLE_TOKEN=ReplaceWithYourToken
-VOCAL_TOKEN=ReplaceWithYourToken

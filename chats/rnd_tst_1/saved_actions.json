@@ -1,0 +1,8 @@
+{
+  "Scene": "hallway.png",
+  "Proceed": "True",
+  "head_sprite": "smile.png",
+  "leftside_sprite": "1l.png",
+  "rightside_sprite": "1r.png",
+  "zone": "None"
+}

@@ -1,26 +1,5 @@
 {
-  "status": "success",
-  "generationTime": 3.814171314239502,
-  "id": 46023429,
-  "output": [
-    "https://cdn2.stablediffusionapi.com/generations/f3c9f482-eb78-4788-abb8-f42ffb475b20-0.png"
-  ],
-  "meta": {
-    "H": 1024,
-    "W": 1024,
-    "enable_attention_slicing": "true",
-    "file_prefix": "f3c9f482-eb78-4788-abb8-f42ffb475b20",
-    "guidance_scale": 9,
-    "instant_response": "no",
-    "model": "runwayml/stable-diffusion-v1-5",
-    "n_samples": 1,
-    "negative_prompt": "Disfigured, cartoon, blurry, nude, 1girl, 1boy, character",
-    "outdir": "out",
-    "prompt": "mdjrny-v4 style background anime scenery in museum hyperrealistic, highly detailed, cinematic lighting, stunningly beautiful, intricate, sharp focus, (professionally color graded), ((bright soft diffused light)), volumetric fog, trending on instagram, trending on tumblr, HDR 4K, 8K",
-    "revision": "fp16",
-    "safetychecker": "yes",
-    "seed": 480077654,
-    "steps": 30,
-    "vae": "stabilityai/sd-vae-ft-mse"
-  }
+  "status": "error",
+  "message": "Invalid Api Key",
+  "tip": "1. Get API key from below link : \"https://stablediffusionapi.com/settings/api\" 2. Delete api key and create new."
 }
