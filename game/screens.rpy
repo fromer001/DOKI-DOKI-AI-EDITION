@@ -1606,7 +1606,7 @@ screen chatmode_screen():
         #activate_sound "audio/sfx/select_sfx.wav"
         #action [SetVariable("chatmode_num", 1), Jump("gamemode_label")]
         activate_sound "audio/sfx/select_sfx.wav"
-        action [SetScreenVariable("placeholder", 1)]
+        action [SetScreenVariable("placeholder", 1), Show(screen="dialog", message="Coming soon...", ok_action=Hide("dialog"))]
     
     image "gui/gamemode/freechat_title.png" zoom 0.20 ypos 233 xpos 175
     image "gui/gamemode/freechat_desc.png" zoom 0.24 ypos 270 xpos 200
@@ -1663,7 +1663,7 @@ screen gamemode_screen():
 
         hover_sound "audio/sfx/hover.wav"
         activate_sound "audio/sfx/select_sfx.wav"
-        action [SetScreenVariable("placeholder", 1)]
+        action [SetScreenVariable("placeholder", 1), Show(screen="dialog", message="Coming very soon...", ok_action=Hide("dialog"))]
 
         hovered Show("display_everyone_desc")
         unhovered Hide("display_everyone_desc")

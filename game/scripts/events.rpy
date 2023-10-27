@@ -39,6 +39,7 @@ init python:
             self.saved_data = {
                                 "Scene": "club.png",
                                 "Proceed": "First",
+                                "char": "",
                                 "head_sprite": "smile.png",
                                 "leftside_sprite": "1l.png",
                                 "rightside_sprite": "1r.png",
@@ -184,6 +185,7 @@ init python:
             self.options = []
             self.proceed = self.saved_data["Proceed"]
             self.scene = self.saved_data["Scene"]
+            self.char = self.saved_data["char"]
             self.head_sprite = self.saved_data["head_sprite"]
             self.leftside_sprite = self.saved_data["leftside_sprite"]
             self.rightside_sprite = self.saved_data["rightside_sprite"]
@@ -211,6 +213,8 @@ init python:
 
         @staticmethod
         def enforce_static_emotes(msg):
+            """The AI will sometimes get quirky and use unlisted emotions for
+            the chars, this is to help combat that"""
             # TODO: Must be specific to char instead of just monika atm
             with open(f"{config.basedir}/game/assets/prompts/static_emotes.json") as f:
                 emotes = json.load(f)

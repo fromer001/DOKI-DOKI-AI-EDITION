@@ -23,7 +23,7 @@ label splashscreen:
     python:
         s_kill_early = None
         try: 
-            renpy.file("../characters/sayori.chr")
+            #renpy.file("../characters/sayori.chr")
             renpy.file("../characters/monika.chr")
         except: s_kill_early = True
     

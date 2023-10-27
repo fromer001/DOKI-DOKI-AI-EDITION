@@ -125,7 +125,7 @@ label justMonika:
 
             "[final_msg]"
         else:
-            # Monika is speaking
+            # Char is speaking
             image head:
                 "characters/monika/[convo.head_sprite]"
                 zoom 0.80
@@ -147,8 +147,8 @@ label justMonika:
                 show leftside
                 show rightside
 
-            if convo.NARRATION == False and convo.voice_mode == True:
-                play sound "audio/vocals/monika.wav"
+            #if convo.NARRATION == False and convo.voice_mode == True:
+            #    play sound "audio/vocals/monika.wav"
             monika "[final_msg]"
     return
 
