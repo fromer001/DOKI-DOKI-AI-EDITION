@@ -128,15 +128,18 @@ label justMonika:
             # Monika is speaking
             image head:
                 "characters/monika/[convo.head_sprite]"
-                zoom 0.70
+                zoom 0.80
+                yoffset 40
                 uppies
             image leftside:
                 "characters/monika/[convo.leftside_sprite]"
-                zoom 0.70
+                zoom 0.80
+                yoffset 40
                 uppies
             image rightside:
                 "characters/monika/[convo.rightside_sprite]"
-                zoom 0.70
+                zoom 0.80
+                yoffset 40
                 uppies
 
             if convo.scene != "coffee.jpg":
@@ -216,7 +219,7 @@ label monika_zone:
             $ wait_time = 5
         
         $ final_msg = f"{convo.ai_response(user_msg)}"
-        if convo.NARRATION == False and convo.voice_token == True:
+        if convo.NARRATION == False and convo.voice_mode == True:
             play sound "audio/vocals/monika.wav"
         monika "[final_msg]"
     return
@@ -228,9 +231,7 @@ label monika_zone:
 label now_everyone_can_be_happy:
     $ show_quick_menu = False
     $ basedir = config.basedir.replace('\\', '/')
-
-    #$ config.allow_skipping = False
-
+    
     show black
     $ config.main_menu_music = audio.ghostmenu
     $ renpy.music.play(config.main_menu_music)
