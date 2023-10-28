@@ -22,4 +22,4 @@
 
 
   - Story mode
-  * [ ] Storymode Vol1 (Aims to have more of a plot, that carries the story to a predetermined path but also uses AI to make it feel more dynamic)
+    * [ ] Storymode Vol1 (Aims to have more of a plot, that carries the story to a predetermined path but also uses AI to make it feel more dynamic)
