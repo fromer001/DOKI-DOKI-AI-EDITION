@@ -135,7 +135,7 @@ Monika should not say more than 20-50 words when she speaks. Monika's speech sho
 
 
 
-## **Prompt 3: Just Monika, chatmode: Storymode**
+## **Prompt 3: Just Monika, chatmode: Options**
 
 
 ### **List Version**

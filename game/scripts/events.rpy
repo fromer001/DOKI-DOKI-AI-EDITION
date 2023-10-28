@@ -1,5 +1,5 @@
 init python:
-    import asyncio
+    from python_packs.ai_model import openai
     import aiohttp
     import json
     import openai
