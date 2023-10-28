@@ -27,7 +27,7 @@ init python:
     #vocal_token = cs_config['VOCAL_TOKEN']
 
 
-    with open(config.basedir + "/game/prompt_templates.json", "r") as f:
+    with open(config.basedir + "/assets/prompts/prompt_templates.json", "r") as f:
         prompt = json.load(f)
 
     class ManageChat_Folders:
