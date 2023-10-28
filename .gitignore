@@ -1,9 +1,17 @@
 **/game/saves/*
+
 **/errors.txt
+
 **/log.txt
+
 **/traceback.txt
+
 **/.env
+
 **/PRIVATE_TOKENS_DO_NOT_SHARE.json
+
 **/game/cache/
+
 **/project.json
+
 **/log.txt
