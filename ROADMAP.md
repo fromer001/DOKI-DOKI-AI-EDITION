@@ -5,6 +5,16 @@
     * [ ] Sayori
     * [ ] Yuri
 
+  - Devices
+    * [ ] Cross-platform
+      * [x] PC
+      * [ ] Linux
+      * [ ] Mac
+      * [ ] Mobile
+    * [ ] Performance Increase
+      * [ ] Loading images with little to no lag
+      * [ ] Wait for text to generate without lag
+
   - AI Related
     * [ ] Custom AI Models
       * [ ] GPT-x
