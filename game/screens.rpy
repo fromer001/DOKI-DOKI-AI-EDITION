@@ -40,35 +40,42 @@ style prompt_text is gui_text:
     properties gui.text_properties("prompt")
 
 
-style bar:
-    ysize gui.bar_size
-    left_bar Frame("gui/bar/left.png", gui.bar_borders, tile=gui.bar_tile)
-    right_bar Frame("gui/bar/right.png", gui.bar_borders, tile=gui.bar_tile)
+#style bar:
+#    ysize gui.bar_size
+#    left_bar Frame("gui/bar/left.png", gui.bar_borders, tile=gui.bar_tile)
+#    right_bar Frame("gui/bar/right.png", gui.bar_borders, tile=gui.bar_tile)
+
 
 style vbar:
     xsize gui.bar_size
     top_bar Frame("gui/bar/top.png", gui.vbar_borders, tile=gui.bar_tile)
     bottom_bar Frame("gui/bar/bottom.png", gui.vbar_borders, tile=gui.bar_tile)
 
+style bar:
+    ysize 18
+    base_bar Frame("gui/scrollbar/horizontal_poem_bar.png", tile=False)
+    thumb Frame("gui/scrollbar/horizontal_poem_thumb.png", top=6, right=6, tile=True)
+
 style scrollbar:
-    ysize gui.scrollbar_size
-    base_bar Frame("gui/scrollbar/horizontal_[prefix_]bar.png", gui.scrollbar_borders, tile=gui.scrollbar_tile)
-    thumb Frame("gui/scrollbar/horizontal_[prefix_]thumb.png", gui.scrollbar_borders, tile=gui.scrollbar_tile)
+    ysize 18
+    base_bar Frame("gui/scrollbar/horizontal_poem_bar.png", tile=False)
+    thumb Frame("gui/scrollbar/horizontal_poem_thumb.png", top=6, right=6, tile=True)
+    unscrollable "hide"
+    bar_invert True
+
 
 style vscrollbar:
-    xsize gui.scrollbar_size
-    base_bar Frame("gui/scrollbar/vertical_[prefix_]bar.png", gui.vscrollbar_borders, tile=gui.scrollbar_tile)
-    thumb Frame("gui/scrollbar/vertical_[prefix_]thumb.png", gui.vscrollbar_borders, tile=gui.scrollbar_tile)
+    xsize 18
+    base_bar Frame("gui/scrollbar/vertical_poem_bar.png", tile=False)
+    thumb Frame("gui/scrollbar/vertical_poem_thumb.png", left=6, top=6, tile=True)
+    unscrollable "hide"
+    bar_invert True
+
 
 style slider:
-    ysize gui.slider_size
-    base_bar Frame("gui/slider/horizontal_[prefix_]bar.png", gui.slider_borders, tile=gui.slider_tile)
-    thumb "gui/slider/horizontal_[prefix_]thumb.png"
-
-style vslider:
-    xsize gui.slider_size
-    base_bar Frame("gui/slider/vertical_[prefix_]bar.png", gui.vslider_borders, tile=gui.slider_tile)
-    thumb "gui/slider/vertical_[prefix_]thumb.png"
+    ysize 18
+    base_bar Frame("gui/scrollbar/horizontal_poem_bar.png", tile=False)
+    thumb "gui/slider/horizontal_hover_thumb.png"
 
 
 style frame:
@@ -275,6 +282,7 @@ style choice_button is default:
 
 style choice_button_text is default:
     properties gui.button_text_properties("choice_button")
+    outlines []
 
 
 ## Quick Menu screen ###########################################################
@@ -320,6 +328,7 @@ style quick_button:
 
 style quick_button_text:
     properties gui.button_text_properties("quick_button")
+    outlines []
 
 
 ################################################################################
@@ -460,17 +469,17 @@ style main_menu_version is main_menu_text:
     outlines []
 
 style main_menu_frame:
-    xsize 420
+    xsize 310
     yfill True
 
     background "menu_nav"
 
 style main_menu_vbox:
     xalign 1.0
-    xoffset -30
-    xmaximum 1200
+    xoffset -20
+    xmaximum 800
     yalign 1.0
-    yoffset -30
+    yoffset -20
 
 style main_menu_text:
     xalign 1.0
@@ -480,11 +489,7 @@ style main_menu_text:
     color gui.accent_color
 
 style main_menu_title:
-    properties gui.text_properties("title")
-
-style main_menu_version:
     size gui.title_text_size
-
 
 ## Game Menu screen ############################################################
 ##
@@ -583,32 +588,32 @@ style return_button is navigation_button
 style return_button_text is navigation_button_text
 
 style game_menu_outer_frame:
-    bottom_padding 45
-    top_padding 180
+    bottom_padding 30
+    top_padding 120
 
     background "gui/overlay/game_menu.png"
 
 style game_menu_navigation_frame:
-    xsize 420
+    xsize 280
     yfill True
 
 style game_menu_content_frame:
-    left_margin 60
-    right_margin 30
-    top_margin 15
+    left_margin 40
+    right_margin 20
+    top_margin 10
 
 style game_menu_viewport:
-    xsize 1380
+    xsize 920
 
 style game_menu_vscrollbar:
     unscrollable gui.unscrollable
 
 style game_menu_side:
-    spacing 15
+    spacing 10
 
 style game_menu_label:
-    xpos 75
-    ysize 180
+    xpos 50
+    ysize 120
 
 style game_menu_label_text:
     font "gui/font/RifficFree-Bold.ttf"
@@ -620,7 +625,7 @@ style game_menu_label_text:
 style return_button:
     xpos gui.navigation_xpos
     yalign 1.0
-    yoffset -45
+    yoffset -30
 
 
 ## About screen ################################################################
@@ -685,50 +690,44 @@ screen load():
 
 
 screen file_slots(title):
-
-    default page_name_value = FilePageNameInputValue(pattern=_("Page {}"), auto=_("Automatic saves"), quick=_("Quick saves"))
+    default page_name_value = FilePageNameInputValue()
 
     use game_menu(title):
 
         fixed:
-
-            ## This ensures the input will get the enter event before any of the
-            ## buttons do.
             order_reverse True
 
-            ## The page name, which can be edited by clicking on a button.
             button:
                 style "page_label"
 
-                key_events True
                 xalign 0.5
-                action page_name_value.Toggle()
 
                 input:
                     style "page_label_text"
                     value page_name_value
 
-            ## The grid of file slots.
+
             grid gui.file_slot_cols gui.file_slot_rows:
                 style_prefix "slot"
 
                 xalign 0.5
                 yalign 0.5
-
                 spacing gui.slot_spacing
 
-                for i in range(gui.file_slot_cols * gui.file_slot_rows):
+                $ chat_list = []
+                for i, folder in enumerate(chats):
 
-                    $ slot = i + 1
+                    $ slot = i
 
                     button:
-                        action FileAction(slot)
+                        
+                        action [SetVariable("num", i), FileActionMod(slot), Start()]
 
                         has vbox
 
                         add FileScreenshot(slot) xalign 0.5
 
-                        text FileTime(slot, format=_("{#file_time}%A, %B %d %Y, %H:%M"), empty=_("empty slot")):
+                        text FileTime(slot, format=_(f"{chat_list[i]}"), empty=_("empty slot")):
                             style "slot_time_text"
 
                         text FileSaveName(slot):
@@ -736,7 +735,7 @@ screen file_slots(title):
 
                         key "save_delete" action FileDelete(slot)
 
-            ## Buttons to access other pages.
+
             hbox:
                 style_prefix "page"
 
@@ -745,19 +744,8 @@ screen file_slots(title):
 
                 spacing gui.page_spacing
 
-                textbutton _("<") action FilePagePrevious()
-
-                if config.has_autosave:
-                    textbutton _("{#auto_page}A") action FilePage("auto")
-
-                if config.has_quicksave:
-                    textbutton _("{#quick_page}Q") action FilePage("quick")
-
-                ## range(1, 10) gives the numbers from 1 to 9.
                 for page in range(1, 10):
                     textbutton "[page]" action FilePage(page)
-
-                textbutton _(">") action FilePageNext()
 
 
 style page_label is gui_label
@@ -771,7 +759,7 @@ style slot_time_text is slot_button_text
 style slot_name_text is slot_button_text
 
 style page_label:
-    xpadding 75
+    xpadding 50
     ypadding 5
 
 style page_label_text:
@@ -786,6 +774,7 @@ style page_button:
 
 style page_button_text:
     properties gui.button_text_properties("page_button")
+    outlines []
 
 style slot_button:
     properties gui.button_properties("slot_button")
@@ -1518,37 +1507,38 @@ style sayori_text:
 default num = None
 init python:
     import os
-    chats = os.listdir("chats")
+    chats = os.listdir(f"{config.basedir}/chats")
 
 
 screen custom_save_screen():
-    modal True
+    zorder 1
+    use game_menu(_("Load")):
+        fixed:
 
-    add "bg/theme.png"
-    zorder 10
+            grid gui.file_slot_cols gui.file_slot_rows:
+                style_prefix "slot"
 
-    vbox:
-        null height 50
-        textbutton "Back":
-            style_prefix "navigation_button_text"
+                xalign 0.5
+                yalign 0.5
 
-            xpos 20
-            
-            hover_sound "audio/sfx/hover_doki.ogg"
-            activate_sound "audio/sfx/select_doki.ogg"
-            action Hide("custom_save_screen")
+                spacing gui.slot_spacing
+
+                for slot in range(gui.file_slot_cols * gui.file_slot_rows):
+
+                    button:
+                        text 'yello'
 
 
-    hbox:
-        $ chat_list = []
-        for i, folder in enumerate(chats):
-            textbutton folder:
-                xpos 250
-                ypos 120
-                action [SetVariable("num", i), Hide("custom_save_screen"), Start()]
-            $ chat_list.append(folder)
-            null width 20
-        $ persistent.chatFolderName = chat_list
+            hbox:
+                style_prefix "page"
+
+                xalign 0.5
+                yalign 1.0
+
+                spacing gui.page_spacing
+
+                for page in range(1, 10):
+                    textbutton "[page]" action FilePage(page)
         
 
 
@@ -1606,7 +1596,7 @@ screen chatmode_screen():
         #activate_sound "audio/sfx/select_sfx.wav"
         #action [SetVariable("chatmode_num", 1), Jump("gamemode_label")]
         activate_sound "audio/sfx/select_sfx.wav"
-        action [SetScreenVariable("placeholder", 1), Show(screen="dialog", message="Coming soon...", ok_action=Hide("dialog"))]
+        action [Show(screen="dialog", message="Coming soon...", ok_action=Hide("dialog"))]
     
     image "gui/gamemode/freechat_title.png" zoom 0.20 ypos 233 xpos 175
     image "gui/gamemode/freechat_desc.png" zoom 0.24 ypos 270 xpos 200
@@ -1663,7 +1653,7 @@ screen gamemode_screen():
 
         hover_sound "audio/sfx/hover.wav"
         activate_sound "audio/sfx/select_sfx.wav"
-        action [SetScreenVariable("placeholder", 1), Show(screen="dialog", message="Coming very soon...", ok_action=Hide("dialog"))]
+        action [Show(screen="dialog", message="Coming very very soon...", ok_action=Hide("dialog"))]
 
         hovered Show("display_everyone_desc")
         unhovered Hide("display_everyone_desc")
@@ -1833,41 +1823,37 @@ style pref_vbox:
     variant "small"
     xsize 600
 
-style bar:
-    variant "small"
-    ysize gui.bar_size
-    left_bar Frame("gui/phone/bar/left.png", gui.bar_borders, tile=gui.bar_tile)
-    right_bar Frame("gui/phone/bar/right.png", gui.bar_borders, tile=gui.bar_tile)
-
 style vbar:
-    variant "small"
     xsize gui.bar_size
-    top_bar Frame("gui/phone/bar/top.png", gui.vbar_borders, tile=gui.bar_tile)
-    bottom_bar Frame("gui/phone/bar/bottom.png", gui.vbar_borders, tile=gui.bar_tile)
+    top_bar Frame("gui/bar/top.png", gui.vbar_borders, tile=gui.bar_tile)
+    bottom_bar Frame("gui/bar/bottom.png", gui.vbar_borders, tile=gui.bar_tile)
+
+style bar:
+    ysize 18
+    base_bar Frame("gui/scrollbar/horizontal_poem_bar.png", tile=False)
+    thumb Frame("gui/scrollbar/horizontal_poem_thumb.png", top=6, right=6, tile=True)
 
 style scrollbar:
-    variant "small"
-    ysize gui.scrollbar_size
-    base_bar Frame("gui/phone/scrollbar/horizontal_[prefix_]bar.png", gui.scrollbar_borders, tile=gui.scrollbar_tile)
-    thumb Frame("gui/phone/scrollbar/horizontal_[prefix_]thumb.png", gui.scrollbar_borders, tile=gui.scrollbar_tile)
+    ysize 18
+    base_bar Frame("gui/scrollbar/horizontal_poem_bar.png", tile=False)
+    thumb Frame("gui/scrollbar/horizontal_poem_thumb.png", top=6, right=6, tile=True)
+    unscrollable "hide"
+    bar_invert True
+
 
 style vscrollbar:
-    variant "small"
-    xsize gui.scrollbar_size
-    base_bar Frame("gui/phone/scrollbar/vertical_[prefix_]bar.png", gui.vscrollbar_borders, tile=gui.scrollbar_tile)
-    thumb Frame("gui/phone/scrollbar/vertical_[prefix_]thumb.png", gui.vscrollbar_borders, tile=gui.scrollbar_tile)
+    xsize 18
+    base_bar Frame("gui/scrollbar/vertical_poem_bar.png", tile=False)
+    thumb Frame("gui/scrollbar/vertical_poem_thumb.png", left=6, top=6, tile=True)
+    unscrollable "hide"
+    bar_invert True
+
 
 style slider:
-    variant "small"
-    ysize gui.slider_size
-    base_bar Frame("gui/phone/slider/horizontal_[prefix_]bar.png", gui.slider_borders, tile=gui.slider_tile)
-    thumb "gui/phone/slider/horizontal_[prefix_]thumb.png"
+    ysize 18
+    base_bar Frame("gui/scrollbar/horizontal_poem_bar.png", tile=False)
+    thumb "gui/slider/horizontal_hover_thumb.png"
 
-style vslider:
-    variant "small"
-    xsize gui.slider_size
-    base_bar Frame("gui/phone/slider/vertical_[prefix_]bar.png", gui.vslider_borders, tile=gui.slider_tile)
-    thumb "gui/phone/slider/vertical_[prefix_]thumb.png"
 
 style slider_vbox:
     variant "small"

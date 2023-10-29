@@ -251,22 +251,22 @@ define gui.file_slot_rows = 2
 
 ## The position of the left side of the navigation buttons, relative to the left
 ## side of the screen.
-define gui.navigation_xpos = 60
+define gui.navigation_xpos = 80
 
 ## The vertical position of the skip indicator.
-define gui.skip_ypos = 15
+define gui.skip_ypos = 10
 
 ## The vertical position of the notify screen.
-define gui.notify_ypos = 68
+define gui.notify_ypos = 45
 
 ## The spacing between menu choices.
-define gui.choice_spacing = 33
+define gui.choice_spacing = 22
 
 ## Buttons in the navigation section of the main and game menus.
-define gui.navigation_spacing = 12
+define gui.navigation_spacing = 6
 
 ## Controls the amount of spacing between preferences.
-define gui.pref_spacing = 15
+define gui.pref_spacing = 10
 
 ## Controls the amount of spacing between preference buttons.
 define gui.pref_button_spacing = 0
@@ -275,7 +275,7 @@ define gui.pref_button_spacing = 0
 define gui.page_spacing = 0
 
 ## The spacing between file slots.
-define gui.slot_spacing = 15
+define gui.slot_spacing = 10
 
 ## The position of the main menu text.
 define gui.main_menu_text_xalign = 1.0

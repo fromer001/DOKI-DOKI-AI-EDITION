@@ -27,7 +27,7 @@ init python:
     #vocal_token = cs_config['VOCAL_TOKEN']
 
 
-    with open(config.basedir + "/assets/prompts/prompt_templates.json", "r") as f:
+    with open(config.basedir + "/game/assets/prompts/prompt_templates.json", "r") as f:
         prompt = json.load(f)
 
     class ManageChat_Folders:
@@ -291,8 +291,6 @@ init python:
                     self.update_in_saved_actions("rightside_sprite", raw_chars[char_name]["none"])
                     self.rightside_sprite = raw_chars[char_name]["none"]
 
-                    with open(f"{config.basedir}/test.txt", "w") as f:
-                        f.write("teeeest: this snippet was executed")
                     return emo               
 
 

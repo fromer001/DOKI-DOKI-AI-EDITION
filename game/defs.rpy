@@ -22,13 +22,36 @@ image white = "#ffffff"
 label splashscreen:
     python:
         s_kill_early = None
-        try: 
-            #renpy.file("../characters/sayori.chr")
+        m_deleted = False
+        s_deleted = False
+
+        try:
             renpy.file("../characters/monika.chr")
-        except: s_kill_early = True
+        except:
+            with open(f"{config.basedir}/characters/monika.chr", 'w') as f:
+                f.write("c29tZSBzZWNyZXRzIGFyZSBiZXN0IGxlZnQgdW50b3VjaGVk")
+            m_deleted = True
+
+        try:
+            renpy.file("../characters/sayori.chr")
+            Show(screen="dialog", message="File error: \"characters/sayori.chr\"\n\nThe file is missing or corrupt.",
+                ok_action=Show(screen="dialog", message="The save file is corrupt. Starting a new game.", ok_action=Function(renpy.full_restart, label="start")))
+        except: pass
     
     if s_kill_early:
         jump now_everyone_can_be_happy
+    if m_deleted:
+        return Show(screen="dialog", message="You accidentally deleted me? It's okay! Mistakes happen.", ok_action=Hide("dialog"))
+    if s_deleted:
+        return Show(screen="dialog", message="File error: \"characters/sayori.chr\"\n\nThe file is missing or corrupt.",
+            ok_action=Show(screen="dialog", message="The save file is corrupt. Starting a new game.", ok_action=Function(renpy.full_restart, label="start")))
+
+
+
+    if persistent.playerName == 'Sayori':
+        return Show(screen="dialog", message="It's far too early for that, please wait a bit longer.",  ok_action=Hide("dialog"))
+    elif persistent.playerName == 'Monika':
+        return Show(screen="dialog", message="There's no point in saving anymore.\nDon't worry, I'm not going anywhere.", ok_action=Hide("dialog"))
 
     if persistent.playerName == None:
         scene warning
