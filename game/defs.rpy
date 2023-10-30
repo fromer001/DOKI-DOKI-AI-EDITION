@@ -4,6 +4,7 @@ define persistent.imgModel = None
 #define persistent.charVoice = None
 define persistent.chatToken = None
 define persistent.imgToken = None
+define persistent.freedom = None
 
 #define truecenter = Position(xalign=0.5, yalign=0.5)
 
@@ -20,6 +21,9 @@ image ai_mods:
 image white = "#ffffff"
 
 label splashscreen:
+    "This is a Doki Doki Literature Club fan game that is not affiliated with Team Salvato."
+    "It is designed to be played only after the official game has been completed."
+    "You can download Doki Doki Literature Club at: http://ddlc.moe"
     python:
         s_kill_early = None
         m_deleted = False
@@ -57,9 +61,24 @@ label splashscreen:
         scene warning
         $ persistent.playerName = renpy.input("What is your name?", "User", allow=" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").strip()
 
+
+    if persistent.freedom != None:
+        jump ai_mod_notice
+
+    jump intro
+    return
+
+
+
+label ai_mod_notice:
+    scene warning
     if persistent.chatModel == None:
-        "Because the A.I. models arent locally hosted, please follow the steps listed on the github page. https://github.com/syntax-z/DOKI-DOKI-AI-EDITION"
-        "If you aren't able to do that at this moment, you can skip all these steps and change them in the settings later. But the game wont work until you complete them"
+        "IMPORTANT NOTICE: Paying for OpenAI's API is not required to play this mod. You're able to use any API/LLM model you want 100% free (You just need to know what you're doing but instructions for those not as tech savvy will be coming out soon)"
+        "None of the money, tokens, messages etc. are recieved by me or any entity related to me in accordance to DDLC's IP Guidelines"
+        "OpenAI is currently the only model built-in in for your own convinience."
+        "I am not sponsered/partnered with openAI or any API contained in this project and make no profit from this."
+        "Because the built-in A.I. models arent locally hosted, you can follow the steps listed on the github page. https://github.com/syntax-z/DOKI-DOKI-AI-EDITION"
+        "If you aren't able to do that at this moment, you can skip all these steps and change them in the settings later."
 
         "Which Language model would you like to use?"
         "1 is for 'chatGPT' (recommended)"
@@ -78,7 +97,7 @@ label splashscreen:
     if persistent.chatToken == None:
         "Do NOT share any of your tokens to ANYONE. Your tokens will be used here strictly for generating responses."
         "If someone you do not trust gets it, they can send multiple request to the API, costing you money."
-        "If you think your token has some how been exposed, you can reset it on the official page."
+        "If you think your token has somehow been exposed, you can reset it on the API's official page."
         $ chatToken = renpy.input("Enter your openAI (chatGPT) token: ").strip()
 
         "If you misclicked or entered the wrong token by accident, you can always change it in the settings."
@@ -97,7 +116,7 @@ label splashscreen:
             "Not a valid image model, change this in the settings once you get the chance!"
 
         "(reminder) Because the A.I. models arent locally hosted, please follow the steps listed on the github page. https://github.com/syntax-z/DOKI-DOKI-AI-EDITION"
-        "(reminder) If you aren't able to do that at this moment, you can skip the next step and change them in the settings later. But the game wont work until you complete the steps."
+        "(reminder) If you aren't able to do that at this moment, you can skip the next step and change them in the settings later."
 
         $ persistent.imgModel = imgModel
 
@@ -106,6 +125,11 @@ label splashscreen:
         "If you misclicked or entered the wrong token by accident, you can always change it in the settings."
         $ persistent.imgToken = imgToken
 
+    jump intro
+    return
+
+
+label intro:
     scene theme
 
     play music "audio/music/ddlc_theme.mp3" volume 0.6
@@ -117,7 +141,6 @@ label splashscreen:
     with Pause(1.3)
 
     return
-
 
 
 ################################################################################

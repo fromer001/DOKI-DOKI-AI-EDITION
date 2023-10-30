@@ -6,17 +6,20 @@ define persistent.chatFolderName = None
 default user_chats = None
 
 label start:
-    $ input_popup_gui = True
-    if num: # Avoid NoneType error
-        if num >=0:
-            jump justMonika
-            return
+    if persistent.freedom:
+        $ input_popup_gui = True
+        if num: # Avoid NoneType error
+            if num >=0:
+                jump justMonika
+                return
 
-    stop music fadeout 0.5
-    play music justMonika volume 0.4
+        stop music fadeout 0.5
+        play music justMonika volume 0.4
 
-    scene theme with dissolve
-    call screen chatmode_screen
+        scene theme with dissolve
+        call screen chatmode_screen
+    else:
+        jump ch0
     return
 
 

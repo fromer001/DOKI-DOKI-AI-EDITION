@@ -62,7 +62,7 @@ define config.has_voice = True
 ## the player is at the main menu. This file will continue playing into the
 ## game, until it is stopped or another file is played.
 
-define config.main_menu_music = "audio/music/ddlc_theme.mp3"
+define config.main_menu_music = "<loop 22.073>audio/music/ddlc_theme.mp3"
 play music config.main_menu_music volume 0.4
 
 
