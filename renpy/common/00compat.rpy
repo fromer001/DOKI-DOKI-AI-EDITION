@@ -21,16 +21,6 @@
 
 init -1100 python:
 
-    def _compat_versions(version, *args):
-        if version <= args[0]:
-            return True
-
-        for i in args[1:]:
-            if (version[0] == i[0]) and (version <= i):
-                return True
-
-        return False
-
     # This is called when script_version is set, to immediately
     # run code in response to a script_version change.
     def _set_script_version(version):
@@ -248,16 +238,6 @@ init -1100 python:
             config.narrator_menu = False
             config.gui_text_position_properties = False
             config.atl_function_always_blocks = True
-
-        if version <= (7, 4, 11):
-            config.timer_blocks_pause = False
-            config.modal_blocks_pause = False
-        elif _compat_versions(version, (7, 5, 1), (8, 0, 1)):
-            config.timer_blocks_pause = True
-            config.modal_blocks_pause = False
-        elif _compat_versions(version, (7, 5, 2), (8, 0, 2)):
-            config.modal_blocks_pause = True
-            config.timer_blocks_pause = True
 
 
     # The version of Ren'Py this script is intended for, or

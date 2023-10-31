@@ -213,9 +213,10 @@ renpyAudio = { };
 
 renpyAudio.queue = (channel, file, name,  paused, fadein, tight, start, end, relative_volume) => {
 
-    const c = get_channel(channel);
+    let c = get_channel(channel);
+    let array = FS.readFile(file);
 
-    const q = {
+    let q = {
         source : null,
         buffer : null,
         name : name,
@@ -226,41 +227,19 @@ renpyAudio.queue = (channel, file, name,  paused, fadein, tight, start, end, rel
         fadein : fadein,
         fadeout: null,
         tight : tight,
-        started_once : false,
-        file: file,
+        started_once : false
     };
-
-    function reuseBuffer(c) {
-        // We can re-use the audio buffer, but not the buffer source
-        c.queued.buffer = c.playing.buffer;
-        c.queued.source = context.createBufferSource();
-        c.queued.source.buffer = c.playing.buffer;
-        c.queued.source.onended = () => { on_end(c); };
-
-        start_playing(c);
-    }
 
     if (c.playing === null) {
         c.playing = q;
         c.paused = paused;
     } else {
         c.queued = q;
-        if (c.playing.file === file) {
-            // Same file, re-use the data to reduce memory and CPU footprint
-            if (c.playing.buffer !== null) {
-                reuseBuffer(c);
-            } else {
-                // Not ready yet, wait for decodeAudioData() to complete
-            }
-
-            return;
-        }
     }
 
-    const array = FS.readFile(file);
     context.decodeAudioData(array.buffer, (buffer) => {
 
-        const source = context.createBufferSource();
+        var source = context.createBufferSource();
         source.buffer = buffer;
         source.onended = () => { on_end(c); };
 
@@ -268,11 +247,6 @@ renpyAudio.queue = (channel, file, name,  paused, fadein, tight, start, end, rel
         q.buffer = buffer;
 
         start_playing(c);
-
-        if (c.playing === q && c.queued !== null && c.queued.file === q.file) {
-            // Same file, re-use the data to reduce memory and CPU footprint
-            reuseBuffer(c);
-        }
     }, () => {
         console.log(`The audio data in ${file} could not be decoded. The file format may not be supported by this browser.`);
     });

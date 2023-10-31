@@ -1309,7 +1309,7 @@ class Lexer(object):
         passed to revert to back the lexer up.
         """
 
-        return self.line, self.filename, self.number, self.text, self.subblock, self.pos, renpy.ast.PyExpr.checkpoint()
+        return self.line, self.filename, self.number, self.text, self.subblock, self.pos
 
     def revert(self, state):
         """
@@ -1317,10 +1317,7 @@ class Lexer(object):
         by a previous checkpoint operation on this lexer.
         """
 
-        self.line, self.filename, self.number, self.text, self.subblock, self.pos, pyexpr_checkpoint = state
-
-        renpy.ast.PyExpr.revert(pyexpr_checkpoint)
-
+        self.line, self.filename, self.number, self.text, self.subblock, self.pos = state
         self.word_cache_pos = -1
         if self.line < len(self.block):
             self.eob = False
@@ -1858,10 +1855,10 @@ def parse_parameters(l):
 
             if l.match(r'='):
                 l.skip_whitespace()
-                default = l.delimited_python("),").strip()
+                default = l.delimited_python("),")
                 has_default = True
 
-                if not default:
+                if not default.strip():
                     l.error("empty parameter default")
 
             elif first_kwonly is None and has_default:

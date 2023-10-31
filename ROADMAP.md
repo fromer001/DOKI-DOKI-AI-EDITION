@@ -1,4 +1,4 @@
-# Features & roadmap
+-# Features & roadmap
   - Sprites
     * [x] Monika
     * [ ] Natsuki

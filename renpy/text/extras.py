@@ -28,7 +28,7 @@ from renpy.compat import PY2, basestring, bchr, bord, chr, open, pystr, range, r
 
 import renpy
 
-from renpy.text.textsupport import DISPLAYABLE, PARAGRAPH, TAG
+from renpy.text.textsupport import TAG, PARAGRAPH
 import renpy.text.textsupport as textsupport
 
 # A list of text tags, mapping from the text tag prefix to if it
@@ -206,8 +206,7 @@ def filter_alt_text(s):
                     active.discard(kind)
                 else:
                     active.add(kind)
-        elif tokentype == DISPLAYABLE:
-            rv.append(text._tts())
+
         else:
             if not active:
                 rv.append(text)
@@ -236,9 +235,6 @@ class ParameterizedText(object):
     different style properties. For example, one can write::
 
         image top_text = ParameterizedText(xalign=0.5, yalign=0.0)
-
-        label start:
-            show top_text "This text is shown at the center-top of the screen"
     """
 
     def __init__(self, style='default', **properties):

@@ -387,8 +387,7 @@ def is_selected(action):
     :name: renpy.is_selected
     :doc: run
 
-    Returns a true value if the provided action or list of actions
-    indicates it is selected, and false otherwise.
+    Returns true if `action` indicates it is selected, or false otherwise.
     """
 
     if isinstance(action, (list, tuple)):
@@ -408,8 +407,7 @@ def is_sensitive(action):
     :name: renpy.is_sensitive
     :doc: run
 
-    Returns a true value if the provided action or list of actions
-    indicates it is sensitive, and false otherwise.
+    Returns true if `action` indicates it is sensitive, or False otherwise.
     """
 
     if isinstance(action, (list, tuple)):
@@ -509,38 +507,34 @@ class PauseBehavior(renpy.display.layout.Null):
     """
 
     voice = False
-    modal = False
 
-    def __init__(self, delay, result=False, voice=False, modal=None, **properties):
+    def __init__(self, delay, result=False, voice=False, **properties):
         super(PauseBehavior, self).__init__(**properties)
 
         self.delay = delay
         self.result = result
         self.voice = voice
-        self.modal = (renpy.config.modal_blocks_pause) if (modal is None) else modal
 
     def event(self, ev, x, y, st):
 
-        if ev.type == renpy.display.core.TIMEEVENT:
+        if ev.type == renpy.display.core.TIMEEVENT and ev.modal:
+            renpy.game.interface.timeout(max(self.delay - st, 0))
+            return
 
-            if ev.modal and self.modal:
-                renpy.game.interface.timeout(max(self.delay - st, 0))
-                return
+        if st >= self.delay:
 
-            if st >= self.delay:
+            if self.voice and renpy.config.nw_voice:
+                if (not renpy.config.afm_callback()) or renpy.display.tts.is_active():
+                    renpy.game.interface.timeout(0.05)
+                    return
 
-                if self.voice and renpy.config.nw_voice:
-                    if (not renpy.config.afm_callback()) or renpy.display.tts.is_active():
-                        renpy.game.interface.timeout(0.05)
-                        return
-
-                # If we have been drawn since the timeout, simply return
-                # true. Otherwise, force a redraw, and return true when
-                # it comes back.
-                if renpy.game.interface.drawn_since(st - self.delay):
-                    return self.result
-                else:
-                    renpy.game.interface.force_redraw = True
+            # If we have been drawn since the timeout, simply return
+            # true. Otherwise, force a redraw, and return true when
+            # it comes back.
+            if renpy.game.interface.drawn_since(st - self.delay):
+                return self.result
+            else:
+                renpy.game.interface.force_redraw = True
 
         renpy.game.interface.timeout(max(self.delay - st, 0))
 
@@ -592,7 +586,7 @@ class SayBehavior(renpy.display.layout.Null):
     """
 
     focusable = True
-    text_tuple = None
+    text = None
 
     dismiss_unfocused = [ 'dismiss_unfocused' ]
 
@@ -619,20 +613,15 @@ class SayBehavior(renpy.display.layout.Null):
     def _tts_all(self):
         raise renpy.display.tts.TTSRoot()
 
-    def set_text(self, *args):
-        self.text_tuple = args
+    def set_text(self, text):
+        self.text = text
 
-        self.afm_length = 1
-        self.text_time = 0
-
-        for text in args:
-
-            try:
-                afm_text = text.text[0][text.start:text.end]
-                afm_text = renpy.text.extras.filter_text_tags(afm_text, allow=[])
-                self.afm_length += max(len(afm_text), 1)
-            except Exception:
-                self.afm_length += max(text.end - text.start, 1)
+        try:
+            afm_text = text.text[0][text.start:text.end]
+            afm_text = renpy.text.extras.filter_text_tags(afm_text, allow=[])
+            self.afm_length = max(len(afm_text), 1)
+        except Exception:
+            self.afm_length = max(text.end - text.start, 1)
 
     def event(self, ev, x, y, st):
 
@@ -640,16 +629,8 @@ class SayBehavior(renpy.display.layout.Null):
 
             afm_delay = (1.0 * (renpy.config.afm_bonus + self.afm_length) / renpy.config.afm_characters) * renpy.game.preferences.afm_time
 
-            if self.text_tuple is not None:
-                max_time = 0
-
-                for t in self.text_tuple:
-                    max_time = max(max_time, t.get_time())
-
-                afm_delay += max_time
-
-            if ev.type == renpy.display.core.TIMEEVENT and ev.modal:
-                return None
+            if self.text is not None:
+                afm_delay += self.text.get_time()
 
             if st > afm_delay:
                 if renpy.config.afm_callback:
@@ -773,7 +754,7 @@ class DismissBehavior(renpy.display.core.Displayable):
         rv.add_focus(self, None, None, None, None, None) # type: ignore
 
         if self.modal and not callable(self.modal):
-            rv.modal = "default" # type: ignore
+            rv.modal = True
 
         return rv
 
@@ -2340,7 +2321,6 @@ class Timer(renpy.display.layout.Null):
 
     started = False
     _box_skip = True
-    modal = False
 
     def after_upgrade(self, version):
         if version < 1:
@@ -2348,7 +2328,7 @@ class Timer(renpy.display.layout.Null):
             self.state.started = self.started
             self.state.next_event = self.next_event
 
-    def __init__(self, delay, action=None, repeat=False, args=(), kwargs={}, replaces=None, modal=None, **properties):
+    def __init__(self, delay, action=None, repeat=False, args=(), kwargs={}, replaces=None, **properties):
         super(Timer, self).__init__(**properties)
 
         if delay <= 0:
@@ -2371,9 +2351,6 @@ class Timer(renpy.display.layout.Null):
         # Did we start the timer?
         self.started = False
 
-        # Should this timer trigger on modal events.
-        self.modal = (renpy.config.modal_blocks_timer) if (modal is None) else modal
-
         if isinstance(replaces, Timer):
             self.state = replaces.state
         else:
@@ -2390,7 +2367,7 @@ class Timer(renpy.display.layout.Null):
 
     def event(self, ev, x, y, st):
 
-        if ev.type == renpy.display.core.TIMEEVENT and self.modal and ev.modal:
+        if ev.type == renpy.display.core.TIMEEVENT and ev.modal:
             return
 
         state = self.state
@@ -2456,7 +2433,7 @@ class MouseArea(renpy.display.core.Displayable):
         if renpy.display.focus.pending_focus_type == 'keyboard':
             is_hovered = False
 
-        elif (ev.type == renpy.display.core.TIMEEVENT) and ev.modal:
+        if (ev.type == renpy.display.core.TIMEEVENT) and ev.modal:
             is_hovered = False
 
         else:

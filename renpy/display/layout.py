@@ -25,7 +25,7 @@
 from __future__ import division, absolute_import, with_statement, print_function, unicode_literals
 from renpy.compat import PY2, basestring, bchr, bord, chr, open, pystr, range, round, str, tobytes, unicode # *
 
-import pygame_sdl2 as pygame
+import pygame
 
 import renpy
 from renpy.display.render import render, Render
@@ -2156,8 +2156,8 @@ class Flatten(Container):
 
     `drawable_resolution`
         Defaults to true, which is usually the right choice, but may cause
-        the resulting texture, when scaled, to have different artifacts than
-        the textures that make it up. Setting this to False will change the
+        the texture to be had different artifacts when scaled than the
+        textures that make it up. Setting this to False will change the
         artifacts, which may be more pleasing in some cases.
     """
 
@@ -2216,9 +2216,6 @@ class AlphaMask(Container):
         self.add(self.mask)
         self.add(child)
         self.null = None
-
-    def visit(self):
-        return [ self.mask, self.child ]
 
     def render(self, width, height, st, at):
 
@@ -2356,7 +2353,7 @@ class NearRect(Container):
         # Y positioning.
         if self.prefer_top and (ch < py):
             layout_y = py - ch
-        elif ch <= (height - py - ph):
+        elif ch < (height - pw - ph):
             layout_y = py + ph
         else:
             layout_y = py - ch

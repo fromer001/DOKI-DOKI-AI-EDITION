@@ -507,15 +507,14 @@ init -1500 python:
             renpy.queue_event(self.event, up=self.up)
 
     @renpy.pure
-    class Function(Action):
+    class Function(Action, DictEquality):
         """
         :doc: other_action
 
         This Action calls `callable` with `args` and `kwargs`.
 
         `callable`
-            Callable object. This assumes that if two callables compare
-            equal, calling either one will be equivalent.
+            Callable object.
         `args`
             position arguments to be passed to `callable`.
         `kwargs`
@@ -528,43 +527,9 @@ init -1500 python:
         If the function returns a non-None value, the interaction stops and
         returns that value. (When called using the call screen statement, the
         result is placed in the `_return` variable.)
-
-        Instead of using a Function action, you can define your own subclass
-        of the :class:`Action` class. This lets you name the action, and
-        determine when it should be selected and sensitive.
         """
 
         update_screens = True
-
-        def __eq__(self, other):
-            if type(self) is not type(other):
-                return False
-
-            if PY2:
-                if self.callable is not other.callable:
-                    return False
-            else:
-                if self.callable != other.callable:
-                    return False
-
-            if self.args != other.args:
-                return False
-
-            if self.kwargs != other.kwargs:
-                return False
-
-            for a, b in zip(self.args, other.args):
-                if a is not b:
-                    return False
-
-            for k in self.kwargs:
-                if self.kwargs[k] is not other.kwargs[k]:
-                    return False
-
-            if self.update_screens != other.update_screens:
-                return False
-
-            return True
 
         def __init__(self, callable, *args, **kwargs):
             self.callable = callable

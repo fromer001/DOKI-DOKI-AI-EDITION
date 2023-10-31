@@ -961,8 +961,8 @@ def init():
             pcm_ok = True
         except Exception:
 
-            renpy.display.log.write("Sound init failed. Proceeding anyway.")
-            renpy.display.log.exception()
+            if renpy.config.debug_sound:
+                raise
 
             os.environ["SDL_AUDIODRIVER"] = "dummy"
 

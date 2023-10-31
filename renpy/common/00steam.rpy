@@ -150,7 +150,7 @@ init -1499 python in _renpysteam:
         server.
         """
 
-        return steamapi.SteamUserStats().SetStatFloat(name.encode("utf-8"), value)
+        return steamapi.SteamUserStats().SetStat(name.encode("utf-8"), v)
 
 
     def get_int_stat(name):
@@ -160,11 +160,11 @@ init -1499 python in _renpysteam:
         Returns the value of the stat with `name`, or None if no such stat
         exits.
         """
-        from ctypes import c_int, byref
+        from ctypes import c_float, byref
 
         rv = c_int(0)
 
-        if not steamapi.SteamUserStats().GetStatInt32(name.encode("utf-8"), byref(rv)):
+        if not steamapi.SteamUserStats().GetStatInt32(name.encode("utf-8"),  byref(rv)):
             return None
 
         return rv.value
@@ -179,7 +179,7 @@ init -1499 python in _renpysteam:
         server.
         """
 
-        return steamapi.SteamUserStats().SetStatInt32(name.encode("utf-8"), value)
+        return steamapi.SteamUserStats().SetStatInt32(name.encode("utf-8"), v)
 
 
     ########################################################################### Apps
@@ -225,7 +225,7 @@ init -1499 python in _renpysteam:
 
         rv = create_string_buffer(256)
 
-        if not steamapi.SteamApps().GetCurrentBetaName(rv, 256):
+        if not steamapi.SteamApps().GetCurrentBetaName(byref(rv), 256):
             return None
 
         return rv.value.decode("utf-8")
@@ -319,7 +319,7 @@ init -1499 python in _renpysteam:
         :doc: steam_overlay
 
         Sets the position of the steam overlay. `Position` should be one of
-        achievement.steam.POSITION_TOP_LEFT, .POSITION_TOP_RIGHT, .POSITION_BOTTOM_LEFT,
+        _renpysteam.POSITION_TOP_LEFT, .POSITION_TOP_RIGHT, .POSITION_BOTTOM_LEFT,
         or .POSITION_BOTTOM_RIGHT.
         """
 
@@ -359,7 +359,7 @@ init -1499 python in _renpysteam:
             The appid to open.
 
         `flag`
-            One of achievement.steam.STORE_NONE, .STORE_ADD_TO_CART, or .STORE_ADD_TO_CART_AND_SHOW.
+            One of achievements.steam.STORE_NONE, .STORE_ADD_TO_CART, or .STORE_ADD_TO_CART_AND_SHOW.
         """
 
         if flag is None:
@@ -420,7 +420,7 @@ init -1499 python in _renpysteam:
         ticket_buf = create_string_buffer(2048)
         ticket_len = c_uint()
 
-        h_ticket = steamapi.SteamUser().GetAuthSessionTicket(ticket_buf, 2048, byref(ticket_len))
+        h_ticket = steamapi.SteamUser().GetAuthSessionTicket(byref(ticket_buf), 2048, byref(ticket_len))
 
         if h_ticket:
             ticket = ticket_buf.raw[0:ticket_len]
@@ -464,13 +464,11 @@ init -1499 python in _renpysteam:
         workshop.
         """
 
-        from ctypes import c_ulonglong, pointer, POINTER, cast
+        from ctypes import c_ulonglong, byref
 
         subscribed = (c_ulonglong * 512)()
 
-        count = steamapi.SteamUGC().GetSubscribedItems(
-            cast(pointer(subscribed), POINTER(c_ulonglong)),
-            512)
+        count = steamapi.SteamUGC().GetSubscribedItems(byref(subscribed), 512)
 
         rv = [ ]
 
@@ -579,7 +577,7 @@ init -1499 python in _renpysteam:
         elif keyboard_mode == "always":
             keyboard_primed = True
         elif keyboard_mode != "once":
-            raise Exception("Bad steam keyboard_mode.")
+            raise Exception("Bad keyboard_mode.")
 
         keyboard_text_rect = renpy.display.interface.text_rect
         _KeyboardShift.text_rect = keyboard_text_rect
@@ -593,6 +591,8 @@ init -1499 python in _renpysteam:
             steamapi.SteamUtils().ShowFloatingGamepadTextInput(
                 steamapi.k_EFloatingGamepadTextInputModeModeSingleLine,
                 x, y, w, h)
+
+            print("Showing keyboard.")
 
             keyboard_showing = time.time()
             keyboard_primed = False
@@ -811,9 +811,6 @@ init -1499 python in achievement:
             has_steam = os.path.exists(dll_path)
 
             if not config.enable_steam:
-                return
-
-            if "RENPY_NO_STEAM" in os.environ:
                 return
 
             dll = ctypes.cdll[dll_path]

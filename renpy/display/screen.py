@@ -1061,18 +1061,18 @@ def get_screen(name, layer=None):
         else:
             text "The say screen is hidden."
 
-    The ScreenDisplayable objects returned by this function have the
-    following documented fields:
+    The ScreenDisplayable objects returnd by this function have the following
+    documented fields:
 
-    .. attribute:: ScreenDisplayable.layer
+    `ScreenDisplayable.layer`
 
         The layer the screen is being displayed on.
 
-    .. attribute:: ScreenDisplayable.name
+    `ScreenDisplayable.name`
 
         The name of the screen.
 
-    .. attribute:: ScreenDisplayable.zorder
+    `ScreenDisplayable.zorder`
 
         The zorder the screen is being displayed at.
     """
@@ -1349,8 +1349,8 @@ def current_screen(): # type: () -> ScreenDisplayable|None
     :doc: screens
     :name: renpy.current_screen
 
-    Returns the ScreenDisplayable corresponding to the screen currently being
-    updated, rendered, or processed.
+    Returns the ScreendDisplayable corresponding to the screen currently being
+    updated, rendered, or processing an
 
     See :func:`get_screen` for documented fields on ScreenDisplayable.
     """

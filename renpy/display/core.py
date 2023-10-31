@@ -717,9 +717,9 @@ class Displayable(renpy.object.Object):
         rv = [ ]
 
         if reverse:
-            order = -1
-        else:
             order = 1
+        else:
+            order = -1
 
         speech = ""
 
@@ -728,11 +728,10 @@ class Displayable(renpy.object.Object):
                 speech = i._tts()
 
                 if speech.strip():
-                    if isinstance(speech, renpy.display.tts.TTSDone):
-                        rv = [ speech ]
-                    else:
-                        rv.append(speech)
+                    rv.append(speech)
 
+                    if isinstance(speech, renpy.display.tts.TTSDone):
+                        break
 
         rv = ": ".join(rv)
         rv = rv.replace("::", ":")
@@ -3329,7 +3328,7 @@ class Interface(object):
         else:
             self.maximum_framerate_time = max(self.maximum_framerate_time, get_time() + t)
 
-    def interact(self, clear=True, suppress_window=False, trans_pause=False, pause=None, pause_modal=False, **kwargs):
+    def interact(self, clear=True, suppress_window=False, trans_pause=False, pause=None, **kwargs):
         """
         This handles an interaction, restarting it if necessary. All of the
         keyword arguments are passed off to interact_core.
@@ -3374,13 +3373,12 @@ class Interface(object):
             pause_start = get_time()
 
             while repeat:
-                repeat, rv = self.interact_core(preloads=preloads, trans_pause=trans_pause, pause=pause, pause_start=pause_start, pause_modal=pause_modal, **kwargs) # type: ignore
+                repeat, rv = self.interact_core(preloads=preloads, trans_pause=trans_pause, pause=pause, pause_start=pause_start, **kwargs) # type: ignore
                 self.start_interact = False
 
             return rv # type: ignore
 
         finally:
-            renpy.game.context().deferred_translate_identifier = None
 
             self.force_prediction = False
 
@@ -3537,9 +3535,8 @@ class Interface(object):
                       mouse='default',
                       preloads=[],
                       roll_forward=None,
-                      pause=None,
+                      pause=False,
                       pause_start=0.0,
-                      pause_modal=None,
                       ):
         """
         This handles one cycle of displaying an image to the user,
@@ -3557,16 +3554,9 @@ class Interface(object):
         `pause`
             If not None, the amount of time before the interaction ends with
             False being returned.
-
-        `pause_modal`
-            If true, the pause will respect modal windows. If false, it will
-            not.
         """
 
         renpy.plog(1, "start interact_core")
-
-        # Check to see if the language has changed.
-        renpy.translation.check_language()
 
         suppress_overlay = suppress_overlay or renpy.store.suppress_overlay
 
@@ -3615,6 +3605,9 @@ class Interface(object):
                 return False, None
             if not self.old_scene:
                 return False, None
+
+        # Check to see if the language has changed.
+        renpy.translation.check_language()
 
         # We just restarted.
         self.restart_interaction = False
@@ -3698,11 +3691,6 @@ class Interface(object):
 
         renpy.plog(1, "final predict")
 
-        if pause is not None:
-            pb = renpy.display.behavior.PauseBehavior(pause, modal=pause_modal)
-            root_widget.add(pb, pause_start, pause_start)
-            focus_roots.append(pb)
-
         # The root widget of all of the layers.
         layers_root = renpy.display.layout.MultiBox(layout='fixed')
         layers_root.layers = { }
@@ -3778,6 +3766,11 @@ class Interface(object):
 
         else:
             root_widget.add(layers_root)
+
+        if pause is not None:
+            pb = renpy.display.behavior.PauseBehavior(pause)
+            root_widget.add(pb, pause_start, pause_start)
+            focus_roots.append(pb)
 
         # Add top_layers to the root_widget.
         for layer in renpy.config.top_layers:

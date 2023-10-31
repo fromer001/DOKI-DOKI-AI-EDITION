@@ -170,7 +170,6 @@ DisplayableParser("timer", renpy.display.behavior.Timer, "default", 0, replaces=
 Positional("delay")
 Keyword("action")
 Keyword("repeat")
-Keyword("modal")
 
 # Omit behaviors.
 # Omit menu as being too high-level.

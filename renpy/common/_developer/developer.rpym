@@ -581,18 +581,16 @@ label _filename_list:
         FILES_TXT = os.path.join(renpy.config.basedir, "files.txt")
 
         with open(FILES_TXT, "w") as f:
-            for dirname, _dirs, files in os.walk(config.gamedir):
+            for dirname, dirs, files in os.walk(config.gamedir):
 
+                dirs.sort()
                 files.sort()
-                if dirname.startswith(config.gamedir):
-                    dirname = dirname[len(config.gamedir)+1:]
 
                 for fn in files:
                     fn = os.path.join(dirname, fn)
-                    if PY2:
-                        fn = fn.encode("utf-8", "replace")
-                    print(fn, file=f)
-                    print(fn)
+                    fn = fn[len(config.gamedir) + 1:]
+                    print(fn.encode("utf-8", "replace"), file=f)
+                    print(fn.encode("utf-8", "replace"))
 
         renpy.launch_editor([ FILES_TXT ], transient=1)
 

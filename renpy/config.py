@@ -1205,7 +1205,7 @@ raise_image_exceptions = True
 relative_transform_size = True
 
 # Should tts of layers be from front to back?
-tts_front_to_back = False
+tts_front_to_back = True
 
 # Should live2d loading be logged to log.txt
 log_live2d_loading = False
@@ -1263,12 +1263,6 @@ skip_during_text = False
 # An alternate path to use when uneliding. (Mostly used by the launcher to enable
 # the style inspector.)
 alternate_unelide_path = None
-
-# Should modal block pause?
-modal_blocks_pause = True
-
-# Should modal block timers?
-modal_blocks_timer = False
 
 del os
 del collections

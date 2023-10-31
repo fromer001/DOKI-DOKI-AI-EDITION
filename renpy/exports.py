@@ -1438,10 +1438,10 @@ def imagemap(ground, selected, hotspots, unselected=None, overlays=False,
     return rv
 
 
-def pause(delay=None, music=None, with_none=None, hard=False, predict=False, checkpoint=None, modal=True):
+def pause(delay=None, music=None, with_none=None, hard=False, predict=False, checkpoint=None):
     """
     :doc: se_pause
-    :args: (delay=None, *, hard=False, predict=False, modal=False)
+    :args: (delay=None, *, hard=False, predict=False)
 
     Causes Ren'Py to pause. Returns true if the user clicked to end the pause,
     or false if the pause timed out or was skipped.
@@ -1477,10 +1477,6 @@ def pause(delay=None, music=None, with_none=None, hard=False, predict=False, che
         This also causes Ren'Py to prioritize prediction over display smoothness
         for the duration of the pause. Because of that, it's recommended to not
         display animations during prediction.
-
-    `modal`
-        If True or None, the pause will not end when a modal screen is being displayed.
-        If false, the pause will end while a modal screen is being displayed.
     """
 
     if renpy.config.skipping == "fast":
@@ -1534,7 +1530,7 @@ def pause(delay=None, music=None, with_none=None, hard=False, predict=False, che
         renpy.ui.add(renpy.display.behavior.PredictPauseBehavior())
 
     try:
-        rv = renpy.ui.interact(mouse='pause', type='pause', roll_forward=roll_forward, pause=delay, pause_modal=modal)
+        rv = renpy.ui.interact(mouse='pause', type='pause', roll_forward=roll_forward, pause=delay)
     except (renpy.game.JumpException, renpy.game.CallException) as e:
         rv = e
 
@@ -1833,10 +1829,9 @@ def reload_script():
 
     session = renpy.session
 
-    # If one of these variables is already in session, we're recovering from
-    # a failed reload.
-    if ("_reload_screen" in session) or ("_main_menu_screen" in session):
-        utter_restart()
+    session.pop("_reload_screen", None)
+    session.pop("_reload_screen_args", None)
+    session.pop("_reload_screen_kwargs", None)
 
     if not renpy.store.main_menu:
 
@@ -2698,24 +2693,12 @@ def scry():
     Returns the scry object for the current statement.
 
     The scry object tells Ren'Py about things that must be true in the
-    future of the current statement. Right now, the scry object has the
-    following fields:
+    future of the current statement. Right now, the scry object has one
+    field:
 
     ``nvl_clear``
         Is true if an ``nvl clear`` statement will execute before the
         next interaction.
-
-    ``say``
-        Is true if an ``say`` statement will execute before the
-        next interaction.
-
-    ``menu_with_caption``
-        Is true if a ``menu`` statement with a caption will execute
-        before the next interaction.
-
-    ``who``
-        If a ``say`` or ``menu-with-caption`` statement will execute
-        before the next interaction, this is the character object it will use.
     """
 
     name = renpy.game.context().current
@@ -2736,7 +2719,6 @@ loaded_modules = set()
 def load_module(name, **kwargs):
     """
     :doc: other
-    :args: (name)
 
     This loads the Ren'Py module named name. A Ren'Py module consists of Ren'Py script
     that is loaded into the usual (store) namespace, contained in a file named
@@ -2762,7 +2744,6 @@ def load_module(name, **kwargs):
     renpy.config.locked = False
 
     initcode = renpy.game.script.load_module(name)
-    initcode.sort(key=lambda i: i[0])
 
     context = renpy.execution.Context(False)
     context.init_phase = True
@@ -2771,7 +2752,7 @@ def load_module(name, **kwargs):
     context.make_dynamic(kwargs)
     renpy.store.__dict__.update(kwargs) # @UndefinedVariable
 
-    for _prio, node in initcode: # @UnusedVariable
+    for prio, node in initcode: # @UnusedVariable
         if isinstance(node, renpy.ast.Node):
             renpy.game.context().run(node)
         else:
@@ -3136,7 +3117,6 @@ def stop_predict_screen(name):
 def call_screen(_screen_name, *args, **kwargs):
     """
     :doc: screens
-    :args: (_screen_name, *args, _with_none=True, _mode="screen", **kwargs)
 
     The programmatic equivalent of the call screen statement.
 
@@ -3147,11 +3127,11 @@ def call_screen(_screen_name, *args, **kwargs):
     Positional arguments, and keyword arguments that do not begin with
     _ are passed to the screen.
 
-    If `_with_none` is false, "with None" is not run at the end of end
-    of the interaction.
+    If the keyword argument `_with_none` is false, "with None" is not
+    run at the end of end of the interaction.
 
-    If `_mode` is passed, it will be the mode of this interaction,
-    otherwise the mode will be "screen".
+    If the keyword argument `_mode` is passed, it will be the mode of this
+    interaction, otherwise the mode will be "screen".
     """
 
     mode = "screen"

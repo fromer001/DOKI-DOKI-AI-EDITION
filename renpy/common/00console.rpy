@@ -132,30 +132,22 @@ init -1500 python in _console:
     class PrettyRepr(Repr):
         _ellipsis = str("...")
 
-        def _repr_bytes(self, x, level):
+        def repr_str(self, x, level):
             s = repr(x)
             if len(s) > self.maxstring:
                 i = max(0, (self.maxstring - 3) // 2)
                 s = s[:i] + self._ellipsis + s[len(s) - i:]
             return s
 
-        def _repr_string(self, x, level):
+        def repr_unicode(self, x, level):
             s = repr(x)
-
-            if persistent._console_unicode_escaping:
-                s = s.encode("ascii", "backslashreplace").decode("utf-8")
+            if not persistent._console_unicode_escaping:
+                s = s.decode("unicode-escape", errors="replace")
 
             if len(s) > self.maxstring:
                 i = max(0, (self.maxstring - 3) // 2)
                 s = s[:i] + self._ellipsis + s[len(s) - i:]
             return s
-
-        if PY2:
-            repr_str = _repr_bytes
-            repr_unicode = _repr_string
-        else:
-            repr_bytes = _repr_bytes
-            repr_str = _repr_string
 
         def repr_tuple(self, x, level):
             if not x: return "()"
@@ -206,8 +198,8 @@ init -1500 python in _console:
 
             if level <= 0: return "{...}"
 
-            iter_keys = self._to_shorted_list(x, self.maxdict, sort=PY2)
-            iter_x = self._make_pretty_items(x, iter_keys, '{', '}')
+            iter_keys = self._to_shorted_list(x, self.maxdict, sort=True)
+            iter_x = self._make_pretty_items(x, iter_keys)
             return self._repr_iterable(iter_x, level, '{', '}')
 
         repr_RevertableDict = repr_dict
@@ -221,8 +213,8 @@ init -1500 python in _console:
 
             if level <= 0: return left + "...})"
 
-            iter_keys = self._to_shorted_list(x, self.maxdict, sort=PY2)
-            iter_x = self._make_pretty_items(x, iter_keys, left, '})')
+            iter_keys = self._to_shorted_list(x, self.maxdict, sort=True)
+            iter_x = self._make_pretty_items(x, iter_keys)
             return self._repr_iterable(iter_x, level, left, '})')
 
         def repr_OrderedDict(self, x, level):
@@ -231,32 +223,8 @@ init -1500 python in _console:
             if level <= 0: return "OrderedDict({...})"
 
             iter_keys = self._to_shorted_list(x, self.maxdict)
-            iter_x = self._make_pretty_items(x, iter_keys, 'OrderedDict({', '})')
+            iter_x = self._make_pretty_items(x, iter_keys)
             return self._repr_iterable(iter_x, level, 'OrderedDict({', '})')
-
-        def repr_dict_keys(self, x, level):
-            if not x: return "dict_keys([])"
-
-            if level <= 0: return "dict_keys([...])"
-
-            iter_x = self._to_shorted_list(x, self.maxdict)
-            return self._repr_iterable(iter_x, level, 'dict_keys([', '])')
-
-        def repr_dict_values(self, x, level):
-            if not x: return "dict_values([])"
-
-            if level <= 0: return "dict_values([...])"
-
-            iter_x = self._to_shorted_list(x, self.maxdict)
-            return self._repr_iterable(iter_x, level, 'dict_values([', '])')
-
-        def repr_dict_items(self, x, level):
-            if not x: return "dict_items([])"
-
-            if level <= 0: return "dict_items([...])"
-
-            iter_x = self._to_shorted_list(x, self.maxdict)
-            return self._repr_iterable(iter_x, level, 'dict_items([', '])')
 
 
         class _PrettyDictItem(object):
@@ -277,7 +245,7 @@ init -1500 python in _console:
                 value = self.repr1(x.value, newlevel)
             return "%s: %s" % (key, value)
 
-        def _make_pretty_items(self, x, iter_keys, left, right):
+        def _make_pretty_items(self, x, iter_keys):
             ellipsis = self._ellipsis
             DictItem = self._PrettyDictItem
             iter_x = []
@@ -285,7 +253,7 @@ init -1500 python in _console:
                 if key is ellipsis:
                     di = ellipsis
                 elif x[key] is x:
-                    di = DictItem(key, '%s%s%s' % (left, ellipsis, right))
+                    di = DictItem(key, ellipsis)
                 else:
                     di = DictItem(key, x[key])
                 iter_x.append(di)
@@ -1131,6 +1099,3 @@ label _console:
 
 label _console_return:
     return
-
-init -1010 python:
-    config.per_frame_screens.append("_trace_screen")

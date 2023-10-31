@@ -318,7 +318,7 @@ class SLNode(object):
 
         return False
 
-    def dump_const(self, prefix):
+    def dump_const(self):
         """
         Dumps a tree-representation of this node, to help determine what
         Ren'Py is treating as const and not.
@@ -1775,7 +1775,7 @@ class SLPython(SLNode):
     def has_python(self):
         return True
 
-    def dump_const(self, prefix):
+    def dump(self, prefix):
         self.dc(prefix, "python")
 
 

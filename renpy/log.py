@@ -174,11 +174,7 @@ class LogFile(object):
             self.file.write(s) # type: ignore
 
             if self.flush:
-                try:
-                    self.file.flush() # type: ignore
-                except Exception:
-                    self.flush = False
-                    pass
+                self.file.flush() # type: ignore
 
     def exception(self):
         """
@@ -278,10 +274,8 @@ class StdioRedirector(object):
             self.write(i)
 
     def flush(self):
-        try:
-            self.real_file.flush()
-        except Exception:
-            pass
+        self.real_file.flush()
+        pass
 
     def close(self):
         pass

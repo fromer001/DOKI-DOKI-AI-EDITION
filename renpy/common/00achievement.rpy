@@ -286,7 +286,6 @@ init -1500 python in achievement:
 
         def __call__(self):
             sync()
-            renpy.restart_interaction()
 
         def get_sensitive(self):
             for a in persistent._achievements:

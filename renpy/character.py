@@ -414,9 +414,9 @@ class SlowDone(object):
         for c in self.callback:
             c("slow_done", interact=self.interact, type=self.type, **self.cb_args)
 
-# This is a queue for text that's going to be passed to the say behavior to
-# set the AFM info.
-afm_text_queue = [ ]
+# This function takes care of repeatably showing the screen as part of
+# an interaction.
+
 
 def display_say(
         who,
@@ -440,20 +440,12 @@ def display_say(
         multiple=None,
         dtt=None):
 
-    global afm_text_queue
-
     # Final is true if this statement should perform an interaction.
 
     if multiple is None:
         final = interact
-
-        afm_text_queue = [ ]
-
     else:
         step, total = multiple
-
-        if step == 1:
-            afm_text_queue = [ ]
 
         if step == total:
             final = interact
@@ -610,15 +602,10 @@ def display_say(
             else:
                 what_text = show_function(who, what_string)
 
-            if isinstance(what_text, tuple):
-                what_text = renpy.display.screen.get_widget(what_text[0], what_text[1], what_text[2])
-
-            if not multiple:
-                afm_text_queue = [ what_text ]
-            else:
-                afm_text_queue.append(what_text)
-
             if interact or what_string or (what_ctc is not None) or (behavior and afm):
+
+                if isinstance(what_text, tuple):
+                    what_text = renpy.display.screen.get_widget(what_text[0], what_text[1], what_text[2])
 
                 if not isinstance(what_text, renpy.text.text.Text): # @UndefinedVariable
                     raise Exception("The say screen (or show_function) must return a Text object.")
@@ -650,7 +637,7 @@ def display_say(
                     raise Exception("The displayable with id 'what' was not given the exact contents of the what variable given to the say screen.")
 
                 if behavior and afm:
-                    behavior.set_text(*afm_text_queue)
+                    behavior.set_text(what_text)
 
             else:
 
@@ -1503,7 +1490,7 @@ def Character(name=NotSet, kind=None, **properties):
     `callback`
         A function that is called when events occur while the
         character is speaking. See the section on
-        :ref:`character-callbacks` for more information.
+        :ref:`character-callbacks` fore more information.
 
     **Click-to-continue.**
     A click-to-continue indicator is displayed once all the text has

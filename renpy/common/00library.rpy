@@ -58,14 +58,6 @@ init -1700 python:
         def __ne__(self, o):
             return not (self == o)
 
-        def __hash__(self):
-            rv = hash(_type(self))
-
-            for v in self.__dict__.values():
-                rv ^= hash(v)
-
-            return rv
-
     class FieldEquality(object):
         """
         Declares two objects equal if their types are the same, and
@@ -105,17 +97,6 @@ init -1700 python:
 
         def __ne__(self, o):
             return not (self == o)
-
-        def __hash__(self):
-            rv = hash(_type(self))
-
-            for k in self.equality_fields:
-                rv ^= hash(self.__dict__[k])
-
-            for k in self.identity_fields:
-                rv ^= hash(id(self.__dict__[k]))
-
-            return rv
 
 
 init -1700 python:
@@ -431,6 +412,14 @@ init 1700 python hide:
 
     if config.window_title is None:
         config.window_title = config.name or "A Ren'Py Game"
+
+    import os
+    if "RENPY_GL_MODERN" in os.environ:
+        config.gl_npot = True
+        config.cache_surfaces = False
+
+        print("Modern GL Enabled.")
+
 
 
 # Used by renpy.return_statement() to return.

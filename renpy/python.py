@@ -349,15 +349,6 @@ class LoadedVariables(ast.NodeVisitor):
             self.loaded.add(node.id)
         elif isinstance(node.ctx, ast.Store):
             self.stored.add(node.id)
-        elif PY2 and isinstance(node.ctx, ast.Param):
-            # there's no guarantee that ast.Param will keep existing in future versions of python3
-            # it's only present in asts made in py2
-            self.stored.add(node.id)
-
-    if not PY2:
-        # we could remove this if, but the method wouldn't be called in py2 anyway
-        def visit_arg(self, node):
-            self.stored.add(node.arg)
 
     def find(self, node):
         self.loaded = set()
@@ -762,9 +753,6 @@ new_compile_flags = (old_compile_flags
 py3_compile_flags = (new_compile_flags |
                       __future__.division.compiler_flag)
 
-if not PY2:
-    py3_compile_flags |= __future__.annotations.compiler_flag
-
 # The set of files that should be compiled under Python 2 with Python 3
 # semantics.
 py3_files = set()
@@ -1131,9 +1119,6 @@ class StoreProxy(object):
     def __delattr__(self, k):
         delattr(renpy.store, k) # @UndefinedVariable
 
-# This needs to exist even after PY2 support is dropped, to load older saves.
-def method_unpickle(obj, name):
-    return getattr(obj, name)
 
 if PY2:
 
@@ -1147,6 +1132,9 @@ if PY2:
             obj = method.im_class
 
         return method_unpickle, (obj, name)
+
+    def method_unpickle(obj, name):
+        return getattr(obj, name)
 
     copyreg.pickle(types.MethodType, method_pickle)
 

@@ -149,7 +149,7 @@ def get_ordered_image_attributes(tag, attributes=(), sort=None):
     """
     :doc: image_func
 
-    Returns a list of image attributes, ordered in a way that makes sense to
+    Returns a list of image tags, ordered in a way that makes sense to
     present to the user.
 
     `attributes`
@@ -158,10 +158,9 @@ def get_ordered_image_attributes(tag, attributes=(), sort=None):
         can be in a single image at the same time.)
 
     `sort`
-        If not None, the returned list of attributes is sorted. This is a
-        one-argument function that should be used as a tiebreaker - see
-        `this tutorial <https://docs.python.org/3/howto/sorting.html#key-functions>`_
-        for more information.
+        If not None, the returned list of attributes is sorted. This is a function
+        that should be used as a tiebreaker.
+
     """
 
     sequences = [ ]
@@ -295,7 +294,7 @@ def get_registered_image(name):
     """
     :doc: image_func
 
-    If an image with the same name has been :ref:`registered <defining-images>`,
+    If an image with the same name has been registered with renpy.register_image,
     returns it. Otherwise, returns None.
     """
 

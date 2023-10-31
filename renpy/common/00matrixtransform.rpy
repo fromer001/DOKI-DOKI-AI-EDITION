@@ -62,17 +62,18 @@ init -1400 python:
             return rv
 
 
-    class OffsetMatrix(TransformMatrix, DictEquality):
+    class OffsetMatrix(TransformMatrix):
         nargs = 3
         function = Matrix.offset
         __doc__ = TransformMatrix._document(Matrix.offset)
 
-    class RotateMatrix(TransformMatrix, DictEquality):
+    class RotateMatrix(TransformMatrix):
         nargs = 3
         function = Matrix.rotate
         __doc__ = TransformMatrix._document(Matrix.rotate)
 
-    class ScaleMatrix(TransformMatrix, DictEquality):
+    class ScaleMatrix(TransformMatrix):
         nargs = 3
         function = Matrix.scale
         __doc__ = TransformMatrix._document(Matrix.scale)
+
