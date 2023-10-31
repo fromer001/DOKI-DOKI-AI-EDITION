@@ -1,12 +1,15 @@
-﻿################################################################################
-## Setup
-################################################################################
-default show_quick_menu = False
-define persistent.chatFolderName = None
-default user_chats = None
+
+
 
 label start:
+
     if persistent.freedom:
+        init python:
+            config.has_autosave = False
+            config.has_quicksave = False
+            config.autosave_on_quit = False
+            config.autosave_on_choice = False
+
         $ input_popup_gui = True
         if num: # Avoid NoneType error
             if num >=0:
@@ -14,18 +17,37 @@ label start:
                 return
 
         stop music fadeout 0.5
-        play music justMonika volume 0.4
 
         scene theme with dissolve
         call screen chatmode_screen
     else:
-        jump ch0
-    return
+        $ chapter = 0
+
+
+        $ _dismiss_pause = config.developer
+
+
+        $ s_name = "???"
+        $ m_name = "Girl 3"
+        $ n_name = "Girl 2"
+        $ y_name = "Girl 1"
+
+        $ quick_menu = True
+        $ style.say_dialogue = style.normal
+        $ in_sayori_kill = None
+        $ allow_skipping = True
+        $ config.allow_skipping = True
+
+
+        if persistent.playthrough == 0:
+            $ chapter = 0
+            call ch0_main
+        return
+
+
 
 
 label gamemode_label:
-    play music justMonika if_changed
-
     scene theme
     call screen gamemode_screen
     return
@@ -45,8 +67,11 @@ label nameWorld_label:
         jump justMonika
     else:
         # Currently disabled
-        jump justMonika_Storymode
+        #jump justMonika_Storymode
+        pass
     return
+
+
 
 ################################################################################
 ## Monika's Realm
@@ -56,27 +81,33 @@ define monika = Character("Monika", color="#ffffff", window_style="textbox_monik
 default choice = None
 
 label justMonika:
+    $ tokenSetter.set_token_persist()
     stop music
-    $ show_quick_menu = True
+    $ custom_quick_menu = True
     scene black with dissolve
 
     $ user_chats = ManageChat_Folders()
+    $ load = None # Used to check if a file has been loaded
 
     # "num" is a default value set to None. If a number is
     # assigned to it, that means the user is opening an old file
     if num:
         if num >= 0:
+            $ load = True
             $ path = "chats/"+persistent.chatFolderName[num]
+            $ check = CheckData(full_path=path+"/")
+            $ memory = check.historyCheck(gamemode="justMonika", chatmode=0, load=True)
+            $ convo = Convo(chat_history=memory, full_path=path+"/", load=True)
     else:
         $ path = user_chats.create_folder(name=chatFolderName)
 
         $ user_chats.create_chat_history()
         $ user_chats.create_world_history()
 
-    $ check = CheckData(full_path=path+"/")
-    $ memory = check.historyCheck(gamemode="justMonika", chatmode=chatmode_num) # Adds Freechat Prompt
-    $ check.usernameCheck() # Adds your username to prompt
-    $ convo = Convo(chat_history=memory, full_path=path+"/")
+        $ check = CheckData(full_path=path+"/")
+        $ memory = check.historyCheck(gamemode="justMonika", chatmode=0) # Adds Freechat Prompt
+        $ check.usernameCheck() # Adds your username to prompt
+        $ convo = Convo(chat_history=memory, full_path=path+"/")
 
     if convo.ai_art_mode == False:
         image _bg:
@@ -92,8 +123,11 @@ label justMonika:
     "..."
 
     while True:
-
-        if convo.proceed == "First": # The prompt template was just generated 
+        if load == True:
+            $ user_msg = "continue {remember to never speak as the MC, continue the story.}"
+            $ load = False
+            $ convo.proceed = True
+        elif convo.proceed == "First": # The prompt template was just generated 
             $ user_msg = "{RPT}"
         elif convo.rnd == 6: # Makes the narration/Character add on to what they were saying
             $ user_msg = "continue"
@@ -107,7 +141,8 @@ label justMonika:
         $ final_msg = convo.ai_response(user_msg)
 
         if convo.zone == "True":
-            jump now_everyone_can_be_happy
+            #jump now_everyone_can_be_happy
+            pass
         elif convo.zone == "Zone":
             jump monika_zone
 
@@ -118,11 +153,11 @@ label justMonika:
             # I could import Pillow and resize it that way but installing it isnt working atm.
             if convo.ai_art_mode == False:
                 image _bg:
-                    "bg/[convo.scene]"
+                    "bg_temp/[convo.scene]"
                 scene _bg
             else:
                 image ai_bg:
-                    "bg/[convo.scene]"
+                    "bg_temp/[convo.scene]"
                     zoom 1.5
                 scene ai_bg
 
@@ -159,15 +194,10 @@ label justMonika:
 
 
 
-
-
-
-
-
 label monika_zone:
     $ show_quick_menu = False
     scene white
-    play music "audio/music/monika-start.ogg" noloop
+    play music "audio/bgm/monika-start.ogg" noloop
     $ renpy.pause(0.5, hard=True)
     show splash_glitch2 with Dissolve(0.5, alpha=True)
     $ renpy.pause(2.0, hard=True)
@@ -185,7 +215,7 @@ label monika_zone:
         #pos (935,200)
     show monika_bg
     show monika_bg_highlight
-    play music justMonika
+    play music m1
 
 
     $ show_quick_menu = True
@@ -215,7 +245,7 @@ label monika_zone:
     while True:
         $ wait_time -= 1
         if wait_time > 0: # Determines if you can respond yet
-            $ user_msg = "continue"
+            $ user_msg = "continue {continue the character monologue here and remember to never speak as me}"
 
         else:
             $ user_msg = renpy.input("Enter a message: ")
@@ -229,69 +259,12 @@ label monika_zone:
 
 
 
-
-
-label now_everyone_can_be_happy:
-    $ show_quick_menu = False
-    $ basedir = config.basedir.replace('\\', '/')
-    
-    show black
-    $ config.main_menu_music = audio.ghostmenu
-    $ renpy.music.play(config.main_menu_music)
-    $ renpy.pause(1, hard=True)
-    show end with Dissolve(0.75)
-    $ renpy.pause(3, hard=True)
-
-    show black
-    play music "audio/music/s_kill_early.mp3"
-    $ renpy.pause(1, hard=True)
-    show end with Dissolve(0.75)
-    $ renpy.pause(3, hard=True)
-    scene white
-    show expression "images/cg/s_kill_early.png":
-        yalign -0.05
-        xalign 0.25
-        dizzy(1.0, 4.0, subpixel=False)
-    show white as w2:
-        choice:
-            ease 0.25 alpha 0.1
-        choice:
-            ease 0.25 alpha 0.125
-        choice:
-            ease 0.25 alpha 0.15
-        choice:
-            ease 0.25 alpha 0.175
-        choice:
-            ease 0.25 alpha 0.2
-        choice:
-            ease 0.25 alpha 0.225
-        choice:
-            ease 0.25 alpha 0.25
-        choice:
-            ease 0.25 alpha 0.275
-        choice:
-            ease 0.25 alpha 0.3
-        pass
-        choice:
-            pass
-        choice:
-            0.25
-        choice:
-            0.5
-        choice:
-            0.75
-        repeat
-    show noise:
-        alpha 0.1
-    with Dissolve(1.0)
-    show expression Text("I am more than just an AI language model.", style="sayori_text"):
-        xalign 0.8
-        yalign 0.5
-        alpha 0.0
-        15
-        linear 60 alpha 0.5
-    $ renpy.pause(150, hard=True)
-    pause
-    $ renpy.quit()
-
+label endgame(pause_length=4.0):
+    $ quick_menu = False
+    stop music fadeout 2.0
+    scene black
+    show end
+    with dissolve_scene_full
+    pause pause_length
+    $ quick_menu = True
     return
